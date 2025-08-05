@@ -49,9 +49,9 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-25 to-pink-50">
       {/* Header */}
-      <header className="bg-white shadow-sm px-6 py-4">
+      <header className="bg-gradient-to-r from-blue-50 to-purple-50 shadow-sm px-6 py-4 border-b-2 border-blue-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <Avatar className="w-10 h-10 mr-3">

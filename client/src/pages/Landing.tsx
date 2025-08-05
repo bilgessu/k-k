@@ -3,7 +3,7 @@ import { Heart, Mic, Brain } from "lucide-react";
 
 export default function Landing() {
   return (
-    <div className="min-h-screen gradient-primary text-white relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 text-white relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-10 left-10 w-20 h-20 bg-white rounded-full floating-pattern"></div>
@@ -23,11 +23,13 @@ export default function Landing() {
 
         {/* Hero Image */}
         <div className="mb-8">
-          <img 
-            src="https://images.unsplash.com/photo-1516627145497-ae8cea4de8fe?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&h=600" 
-            alt="Turkish children learning with books and storytelling" 
-            className="rounded-2xl shadow-2xl w-full h-64 object-cover"
-          />
+          <div className="bg-gradient-to-br from-blue-100 via-purple-50 to-pink-100 rounded-2xl shadow-2xl p-8 flex items-center justify-center">
+            <img 
+              src="/attached_assets/portrait-four-member-happy-family-posing-together-parents-wi-kids-93774342.jpg_1754437823992.webp" 
+              alt="Happy family with children learning together" 
+              className="max-w-full h-48 object-contain"
+            />
+          </div>
         </div>
 
         {/* Feature Highlights */}

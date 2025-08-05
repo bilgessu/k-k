@@ -76,11 +76,13 @@ export default function StoryPlayer() {
 
         {/* Story Illustration */}
         <div className="text-center mb-8">
-          <img 
-            src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&h=300" 
-            alt="Colorful children's storybook illustration" 
-            className="w-64 h-48 rounded-2xl mx-auto object-cover shadow-2xl"
-          />
+          <div className="bg-gradient-to-br from-yellow-100 via-orange-50 to-red-100 rounded-2xl shadow-2xl p-6 flex items-center justify-center mx-auto w-64">
+            <img 
+              src="/attached_assets/portrait-four-member-happy-family-posing-together-parents-wi-kids-93774342.jpg_1754437823992.webp" 
+              alt="Happy family storytelling illustration" 
+              className="max-w-full h-36 object-contain"
+            />
+          </div>
         </div>
 
         {/* Audio Player */}
