@@ -24,11 +24,11 @@ export default function Landing() {
         {/* Hero Image */}
         <div className="mb-8">
           <div className="bg-gradient-to-br from-blue-100 via-purple-50 to-pink-100 rounded-2xl shadow-2xl p-8 flex items-center justify-center">
-            <img 
-              src="/attached_assets/portrait-four-member-happy-family-posing-together-parents-wi-kids-93774342.jpg_1754437823992.webp" 
-              alt="Happy family with children learning together" 
-              className="max-w-full h-48 object-contain"
-            />
+            <div className="text-center">
+              <div className="text-8xl mb-4">👨‍👩‍👧‍👦</div>
+              <h3 className="text-2xl font-bold text-blue-800 mb-2">Mutlu Aile</h3>
+              <p className="text-blue-600">Birlikte öğreniyoruz</p>
+            </div>
           </div>
         </div>
 

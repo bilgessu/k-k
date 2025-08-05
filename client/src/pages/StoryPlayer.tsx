@@ -77,11 +77,11 @@ export default function StoryPlayer() {
         {/* Story Illustration */}
         <div className="text-center mb-8">
           <div className="bg-gradient-to-br from-yellow-100 via-orange-50 to-red-100 rounded-2xl shadow-2xl p-6 flex items-center justify-center mx-auto w-64">
-            <img 
-              src="/attached_assets/portrait-four-member-happy-family-posing-together-parents-wi-kids-93774342.jpg_1754437823992.webp" 
-              alt="Happy family storytelling illustration" 
-              className="max-w-full h-36 object-contain"
-            />
+            <div className="text-center">
+              <div className="text-6xl mb-3">📚</div>
+              <h4 className="text-lg font-semibold text-orange-800 mb-1">Hikaye Zamanı</h4>
+              <p className="text-orange-600 text-sm">Dinlemeye hazır mısın?</p>
+            </div>
           </div>
         </div>
 

@@ -54,12 +54,9 @@ export default function HomePage() {
       <header className="bg-gradient-to-r from-blue-50 to-purple-50 shadow-sm px-6 py-4 border-b-2 border-blue-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <Avatar className="w-10 h-10 mr-3">
-              <AvatarImage src={(user as any)?.profileImageUrl} />
-              <AvatarFallback className="bg-primary text-white">
-                <User className="w-5 h-5" />
-              </AvatarFallback>
-            </Avatar>
+            <div className="w-10 h-10 mr-3 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center">
+              <span className="text-white text-sm">👨‍💼</span>
+            </div>
             <div>
               <h2 className="font-semibold text-textDark">
                 {(user as any)?.firstName || (user as any)?.email?.split('@')[0] || 'Hoşgeldiniz'}
@@ -135,12 +132,9 @@ export default function HomePage() {
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
-                        <Avatar className="w-12 h-12 mr-4">
-                          <AvatarImage src={child.profileImageUrl} />
-                          <AvatarFallback>
-                            {child.name.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
+                        <div className="w-12 h-12 mr-4 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-lg">👶</span>
+                        </div>
                         <div>
                           <h4 className="font-semibold text-textDark">
                             {child.name} ({child.age} yaş)
