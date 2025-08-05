@@ -77,8 +77,8 @@ export default function StoryPlayer() {
         {/* Story Illustration */}
         <div className="text-center mb-8">
           <img 
-            src="https://images.unsplash.com/photo-1609220136736-443140cffec6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" 
-            alt="Story illustration" 
+            src="https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&h=300" 
+            alt="Colorful children's storybook illustration" 
             className="w-64 h-48 rounded-2xl mx-auto object-cover shadow-2xl"
           />
         </div>
