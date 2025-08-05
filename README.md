@@ -94,13 +94,16 @@ cp .env.example .env
 Configure your `.env` file:
 ```env
 # Database
-DATABASE_URL=your_postgresql_connection_string
+DATABASE_URL=postgresql://username:password@localhost:5432/atamind
 
 # AI Services
-GEMINI_API_KEY=your_gemini_api_key
+GEMINI_API_KEY=your_gemini_api_key_here
 
 # Authentication
-SESSION_SECRET=your_session_secret
+SESSION_SECRET=your_super_secret_session_key_here
+
+# Development
+NODE_ENV=development
 ```
 
 4. **Set up the database**
@@ -114,6 +117,89 @@ npm run dev
 ```
 
 Visit `http://localhost:5000` to see AtaMind in action!
+
+## 🔧 Running from GitHub
+
+### Local Development Setup
+
+1. **System Requirements**
+   - Node.js 18 or higher
+   - PostgreSQL 13+ database
+   - Git for version control
+
+2. **Database Setup**
+   ```bash
+   # Create PostgreSQL database
+   createdb atamind
+   
+   # Or using psql
+   psql -c "CREATE DATABASE atamind;"
+   ```
+
+3. **Environment Configuration**
+   - Copy `.env.example` to `.env`
+   - Get Google Gemini API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+   - Update database connection string
+   - Generate a secure session secret
+
+4. **Run the Application**
+   ```bash
+   # Install all dependencies
+   npm install
+   
+   # Initialize database schema
+   npm run db:push
+   
+   # Start development server (runs both frontend and backend)
+   npm run dev
+   ```
+
+5. **Access the Application**
+   - Frontend: `http://localhost:5000`
+   - Backend API: `http://localhost:5000/api`
+
+### Production Deployment
+
+1. **Build for Production**
+   ```bash
+   npm run build
+   ```
+
+2. **Environment Variables for Production**
+   ```env
+   NODE_ENV=production
+   DATABASE_URL=your_production_database_url
+   GEMINI_API_KEY=your_production_gemini_key
+   SESSION_SECRET=your_production_session_secret
+   ```
+
+3. **Start Production Server**
+   ```bash
+   npm start
+   ```
+
+### Troubleshooting
+
+**Database Connection Issues:**
+```bash
+# Check PostgreSQL is running
+sudo service postgresql status
+
+# Test connection
+psql -d atamind -c "SELECT version();"
+```
+
+**Missing Dependencies:**
+```bash
+# Clear cache and reinstall
+rm -rf node_modules package-lock.json
+npm install
+```
+
+**API Key Issues:**
+- Verify Gemini API key at [Google AI Studio](https://makersuite.google.com/app/apikey)
+- Check `.env` file exists and has correct values
+- Restart the server after updating environment variables
 
 ## 📱 Key Features & Pages
 
