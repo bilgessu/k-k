@@ -3,11 +3,11 @@ import { Heart, Mic, Brain } from "lucide-react";
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 text-white relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-gray-50 to-orange-50 text-gray-800 relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-10 left-10 w-20 h-20 bg-white rounded-full floating-pattern"></div>
-        <div className="absolute top-32 right-16 w-12 h-12 bg-secondary rounded-full floating-pattern" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-10 left-10 w-20 h-20 bg-orange-100 rounded-full floating-pattern"></div>
+        <div className="absolute top-32 right-16 w-12 h-12 bg-blue-100 rounded-full floating-pattern" style={{ animationDelay: '1s' }}></div>
         <div className="absolute bottom-20 left-16 w-16 h-16 bg-accent rounded-full floating-pattern" style={{ animationDelay: '2s' }}></div>
       </div>
       
@@ -24,8 +24,8 @@ export default function Landing() {
         {/* Hero Image */}
         <div className="mb-8">
           <img 
-            src="https://picsum.photos/800/400?random=1" 
-            alt="Happy family learning together" 
+            src="/attached_assets/banner-view-happy-family-kids-use-laptop-wide-banner-panoramic-view-happy-young-caucasian-family-renters-two-small-205164339.jpg_1754438260890.webp" 
+            alt="Happy family learning together with laptop" 
             className="rounded-2xl shadow-2xl w-full h-64 object-cover"
           />
         </div>

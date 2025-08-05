@@ -77,8 +77,8 @@ export default function StoryPlayer() {
         {/* Story Illustration */}
         <div className="text-center mb-8">
           <img 
-            src="https://picsum.photos/400/300?random=2" 
-            alt="Story illustration" 
+            src="/attached_assets/banner-view-happy-family-kids-use-laptop-wide-banner-panoramic-view-happy-young-caucasian-family-renters-two-small-205164339.jpg_1754438260890.webp" 
+            alt="Family storytelling time" 
             className="w-64 h-48 rounded-2xl mx-auto object-cover shadow-2xl"
           />
         </div>
