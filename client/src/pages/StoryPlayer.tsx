@@ -76,13 +76,11 @@ export default function StoryPlayer() {
 
         {/* Story Illustration */}
         <div className="text-center mb-8">
-          <div className="bg-gradient-to-br from-yellow-100 via-orange-50 to-red-100 rounded-2xl shadow-2xl p-6 flex items-center justify-center mx-auto w-64">
-            <div className="text-center">
-              <div className="text-6xl mb-3">📚</div>
-              <h4 className="text-lg font-semibold text-orange-800 mb-1">Hikaye Zamanı</h4>
-              <p className="text-orange-600 text-sm">Dinlemeye hazır mısın?</p>
-            </div>
-          </div>
+          <img 
+            src="https://picsum.photos/400/300?random=2" 
+            alt="Story illustration" 
+            className="w-64 h-48 rounded-2xl mx-auto object-cover shadow-2xl"
+          />
         </div>
 
         {/* Audio Player */}
