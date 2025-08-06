@@ -48,44 +48,50 @@ export default function ChildMode() {
 
         {/* Main Action Buttons */}
         <div className="grid grid-cols-1 gap-4 mb-8">
-          <Button className="bg-white hover:bg-gray-50 child-friendly-button p-6 h-auto flex items-center justify-between group">
-            <div className="flex items-center">
-              <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mr-4">
-                <Headphones className="w-8 h-8 text-white" />
+          <Link href="/story-library">
+            <Button className="bg-white hover:bg-gray-50 child-friendly-button p-6 h-auto flex items-center justify-between group w-full">
+              <div className="flex items-center">
+                <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mr-4">
+                  <Headphones className="w-8 h-8 text-white" />
+                </div>
+                <div className="text-left">
+                  <h3 className="text-xl font-bold text-textDark">Hikaye Dinle</h3>
+                  <p className="text-gray-500">Yeni bir maceraya başla</p>
+                </div>
               </div>
-              <div className="text-left">
-                <h3 className="text-xl font-bold text-textDark">Hikaye Dinle</h3>
-                <p className="text-gray-500">Yeni bir maceraya başla</p>
-              </div>
-            </div>
-            <Play className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
-          </Button>
+              <Play className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
+            </Button>
+          </Link>
 
-          <Button className="bg-white hover:bg-gray-50 child-friendly-button p-6 h-auto flex items-center justify-between group">
-            <div className="flex items-center">
-              <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center mr-4">
-                <Gamepad2 className="w-8 h-8 text-white" />
+          <Link href={`/games/${childId || 'default'}`}>
+            <Button className="bg-white hover:bg-gray-50 child-friendly-button p-6 h-auto flex items-center justify-between group w-full">
+              <div className="flex items-center">
+                <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center mr-4">
+                  <Gamepad2 className="w-8 h-8 text-white" />
+                </div>
+                <div className="text-left">
+                  <h3 className="text-xl font-bold text-textDark">Oyunlar</h3>
+                  <p className="text-gray-500">Eğlenceli aktiviteler</p>
+                </div>
               </div>
-              <div className="text-left">
-                <h3 className="text-xl font-bold text-textDark">Oyunlar</h3>
-                <p className="text-gray-500">Eğlenceli aktiviteler</p>
-              </div>
-            </div>
-            <Gamepad2 className="w-5 h-5 text-secondary group-hover:scale-110 transition-transform" />
-          </Button>
+              <Gamepad2 className="w-5 h-5 text-secondary group-hover:scale-110 transition-transform" />
+            </Button>
+          </Link>
 
-          <Button className="bg-white hover:bg-gray-50 child-friendly-button p-6 h-auto flex items-center justify-between group">
-            <div className="flex items-center">
-              <div className="w-16 h-16 bg-purple-400 rounded-2xl flex items-center justify-center mr-4">
-                <Moon className="w-8 h-8 text-white" />
+          <Link href={`/lullaby/${childId || 'default'}`}>
+            <Button className="bg-white hover:bg-gray-50 child-friendly-button p-6 h-auto flex items-center justify-between group w-full">
+              <div className="flex items-center">
+                <div className="w-16 h-16 bg-purple-400 rounded-2xl flex items-center justify-center mr-4">
+                  <Moon className="w-8 h-8 text-white" />
+                </div>
+                <div className="text-left">
+                  <h3 className="text-xl font-bold text-textDark">Ninni</h3>
+                  <p className="text-gray-500">Annemin sesiyle</p>
+                </div>
               </div>
-              <div className="text-left">
-                <h3 className="text-xl font-bold text-textDark">Ninni</h3>
-                <p className="text-gray-500">Annemin sesiyle</p>
-              </div>
-            </div>
-            <span className="text-purple-400 text-xl group-hover:scale-110 transition-transform">💜</span>
-          </Button>
+              <span className="text-purple-400 text-xl group-hover:scale-110 transition-transform">💜</span>
+            </Button>
+          </Link>
         </div>
 
         {/* Recent Stories */}

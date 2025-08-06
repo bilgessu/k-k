@@ -15,6 +15,8 @@ import AIInsights from "@/pages/AIInsights";
 import VoiceAnalytics from "@/pages/VoiceAnalytics";
 import Statistics from "@/pages/Statistics";
 import AIArchitecture from "@/pages/AIArchitecture";
+import Games from "@/pages/Games";
+import Lullaby from "@/pages/Lullaby";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -37,6 +39,8 @@ function Router() {
           <Route path="/voice-analytics" component={VoiceAnalytics} />
           <Route path="/statistics" component={Statistics} />
           <Route path="/ai-architecture" component={AIArchitecture} />
+          <Route path="/games/:childId" component={Games} />
+          <Route path="/lullaby/:childId" component={Lullaby} />
         </>
       )}
       <Route component={NotFound} />

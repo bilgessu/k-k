@@ -3,12 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
-import { ArrowLeft, Search, Play, Clock } from "lucide-react";
+import { ArrowLeft, Search, Play, Clock, Volume2, Heart } from "lucide-react";
 import { useState } from "react";
 
 export default function StoryLibrary() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("Tümü");
+  const [playingStory, setPlayingStory] = useState<string | null>(null);
 
   const { data: stories = [], isLoading } = useQuery<any[]>({
     queryKey: ['/api/stories'],
@@ -129,12 +130,46 @@ export default function StoryLibrary() {
                             </div>
                           )}
                         </div>
-                        <Link href={`/story-player/${story.id}`}>
-                          <Button size="sm" className="w-10 h-10 rounded-full ml-2">
-                            <Play className="w-4 h-4" />
+                        <div className="flex flex-col space-y-2 ml-2">
+                          <Link href={`/story-player/${story.id}`}>
+                            <Button size="sm" className="w-10 h-10 rounded-full">
+                              <Play className="w-4 h-4" />
+                            </Button>
+                          </Link>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            className="w-10 h-10 rounded-full border-pink-200 text-pink-500 hover:bg-pink-50"
+                            onClick={() => {
+                              setPlayingStory(story.id);
+                              // Simulate mother's voice audio playback
+                              setTimeout(() => setPlayingStory(null), 3000);
+                            }}
+                          >
+                            {playingStory === story.id ? (
+                              <Volume2 className="w-4 h-4 text-pink-600" />
+                            ) : (
+                              <Heart className="w-4 h-4" />
+                            )}
                           </Button>
-                        </Link>
+                        </div>
                       </div>
+                      {playingStory === story.id && (
+                        <div className="px-4 pb-4">
+                          <div className="bg-pink-50 border border-pink-200 rounded-lg p-3">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-pink-700 font-medium">
+                                🎵 Anne sesi ile çalıyor...
+                              </span>
+                              <div className="flex items-center space-x-1">
+                                <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse"></div>
+                                <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse delay-75"></div>
+                                <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse delay-150"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </CardContent>
