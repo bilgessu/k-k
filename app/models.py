@@ -100,6 +100,71 @@ class ListeningHistory(Base):
     child = relationship("Child", back_populates="listening_history")
     story = relationship("Story", back_populates="listening_history")
 
+class ActivityRating(Base):
+    __tablename__ = "activity_ratings"
+    
+    id = Column(String, primary_key=True)
+    child_id = Column(String, ForeignKey("children.id"), nullable=False)
+    activity_type = Column(String, nullable=False)  # story, voice_message, game, etc.
+    activity_id = Column(String)  # Reference to specific content
+    rating = Column(Integer, nullable=False)  # 1-5 stars
+    feedback_text = Column(Text)  # Optional child feedback
+    rated_at = Column(DateTime, default=func.now())
+    
+    # Relationships
+    child = relationship("Child")
+
+class UsageSession(Base):
+    __tablename__ = "usage_sessions"
+    
+    id = Column(String, primary_key=True)
+    child_id = Column(String, ForeignKey("children.id"), nullable=False)
+    parent_id = Column(String, ForeignKey("users.id"), nullable=False)
+    session_start = Column(DateTime, default=func.now())
+    session_end = Column(DateTime)
+    duration_minutes = Column(Float)
+    activities_completed = Column(Integer, default=0)
+    average_rating = Column(Float)
+    
+    # Relationships
+    child = relationship("Child")
+    parent = relationship("User")
+
+class BiweeklyReport(Base):
+    __tablename__ = "biweekly_reports"
+    
+    id = Column(String, primary_key=True)
+    child_id = Column(String, ForeignKey("children.id"), nullable=False)
+    parent_id = Column(String, ForeignKey("users.id"), nullable=False)
+    report_period_start = Column(DateTime, nullable=False)
+    report_period_end = Column(DateTime, nullable=False)
+    
+    # Usage Statistics
+    total_time_spent = Column(Float)  # Total minutes
+    activities_completed = Column(Integer)
+    average_session_length = Column(Float)
+    
+    # Content Analytics
+    favorite_content_types = Column(JSON)
+    most_rated_activities = Column(JSON)
+    learning_progress = Column(JSON)
+    
+    # Voice Message Analytics
+    voice_message_ratings = Column(JSON)
+    parent_voice_feedback = Column(JSON)
+    recommended_improvements = Column(JSON)
+    
+    # AI Insights
+    child_development_insights = Column(JSON)
+    engagement_patterns = Column(JSON)
+    recommended_activities = Column(JSON)
+    
+    created_at = Column(DateTime, default=func.now())
+    
+    # Relationships
+    child = relationship("Child")
+    parent = relationship("User")
+
 # Pydantic Models for API
 class UserCreate(BaseModel):
     email: str
@@ -171,3 +236,43 @@ class AIInsights(BaseModel):
     learning_preferences: Dict[str, Any]
     engagement_tips: List[str]
     cultural_recommendations: List[str]
+
+class ActivityRatingCreate(BaseModel):
+    activity_type: str
+    activity_id: Optional[str] = None
+    rating: int  # 1-5
+    feedback_text: Optional[str] = None
+
+class ActivityRatingResponse(BaseModel):
+    id: str
+    activity_type: str
+    rating: int
+    feedback_text: Optional[str]
+    rated_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+class UsageStatsResponse(BaseModel):
+    total_time_today: float
+    total_time_week: float
+    activities_completed_today: int
+    activities_completed_week: int
+    average_rating: float
+    recent_ratings: List[ActivityRatingResponse]
+
+class BiweeklyReportResponse(BaseModel):
+    id: str
+    report_period_start: datetime
+    report_period_end: datetime
+    total_time_spent: float
+    activities_completed: int
+    average_session_length: float
+    favorite_content_types: Dict[str, Any]
+    voice_message_ratings: Dict[str, Any]
+    child_development_insights: Dict[str, Any]
+    engagement_patterns: Dict[str, Any]
+    recommended_activities: List[str]
+    
+    class Config:
+        from_attributes = True

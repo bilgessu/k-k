@@ -15,6 +15,8 @@ from pathlib import Path
 # Import our modules
 from app.database import get_db, create_tables
 from app.auth import mock_get_current_user
+from app.analytics import AnalyticsEngine
+from app.models import ActivityRatingCreate, UsageStatsResponse, BiweeklyReportResponse
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -97,6 +99,122 @@ async def upload_voice(
         "values_extracted": ["sevgi", "sabır", "anlayış"],
         "recommendations": ["Çocuğunuzla daha fazla zaman geçirin", "Hikaye anlatımını günlük rutininize ekleyin"]
     }
+
+# Activity Rating Endpoints
+@app.post("/api/activity-rating")
+async def rate_activity(
+    child_id: str,
+    rating_data: ActivityRatingCreate,
+    current_user: dict = Depends(mock_get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Çocuk aktivite puanlaması"""
+    analytics = AnalyticsEngine(db)
+    
+    rating_record = await analytics.record_activity_rating(
+        child_id=child_id,
+        activity_type=rating_data.activity_type,
+        rating=rating_data.rating,
+        activity_id=rating_data.activity_id,
+        feedback_text=rating_data.feedback_text
+    )
+    
+    return {
+        "id": rating_record.id,
+        "message": f"Aktivite {rating_data.rating} yıldız ile puanlandı!",
+        "child_encouragement": "Harika! Puanını kaydettik. Teşekkürler! ⭐" * rating_data.rating
+    }
+
+@app.get("/api/child/{child_id}/usage-stats", response_model=UsageStatsResponse)
+async def get_usage_stats(
+    child_id: str,
+    current_user: dict = Depends(mock_get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Çocuğun uygulama kullanım istatistikleri"""
+    analytics = AnalyticsEngine(db)
+    stats = analytics.get_usage_statistics(child_id)
+    return stats
+
+@app.post("/api/start-session")
+async def start_session(
+    child_id: str,
+    current_user: dict = Depends(mock_get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Uygulama oturumu başlat"""
+    analytics = AnalyticsEngine(db)
+    session_id = await analytics.start_usage_session(child_id, current_user["id"])
+    
+    return {
+        "session_id": session_id,
+        "message": f"Oturum başlatıldı! Eğlenceli dakikalar geçirin! 🌈"
+    }
+
+@app.post("/api/end-session")
+async def end_session(
+    session_id: str,
+    activities_completed: int = 0,
+    current_user: dict = Depends(mock_get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Uygulama oturumu bitir"""
+    analytics = AnalyticsEngine(db)
+    await analytics.end_usage_session(session_id, activities_completed)
+    
+    return {
+        "message": f"Oturum tamamlandı! {activities_completed} aktivite bitirdin. Aferin! 🎉"
+    }
+
+@app.post("/api/child/{child_id}/generate-report", response_model=BiweeklyReportResponse)
+async def generate_biweekly_report(
+    child_id: str,
+    current_user: dict = Depends(mock_get_current_user),
+    db: Session = Depends(get_db)
+):
+    """2 haftalık kapsamlı rapor oluştur"""
+    analytics = AnalyticsEngine(db)
+    report = await analytics.generate_biweekly_report(child_id, current_user["id"])
+    
+    return BiweeklyReportResponse(
+        id=report.id,
+        report_period_start=report.report_period_start,
+        report_period_end=report.report_period_end,
+        total_time_spent=report.total_time_spent,
+        activities_completed=report.activities_completed,
+        average_session_length=report.average_session_length,
+        favorite_content_types=report.favorite_content_types or {},
+        voice_message_ratings=report.voice_message_ratings or {},
+        child_development_insights=report.child_development_insights or {},
+        engagement_patterns=report.engagement_patterns or {},
+        recommended_activities=report.recommended_activities or []
+    )
+
+@app.get("/api/child/{child_id}/reports")
+async def get_child_reports(
+    child_id: str,
+    current_user: dict = Depends(mock_get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Çocuğun tüm raporlarını getir"""
+    from app.models import BiweeklyReport
+    
+    reports = db.query(BiweeklyReport).filter(
+        BiweeklyReport.child_id == child_id,
+        BiweeklyReport.parent_id == current_user["id"]
+    ).order_by(BiweeklyReport.created_at.desc()).all()
+    
+    return [
+        {
+            "id": r.id,
+            "period_start": r.report_period_start,
+            "period_end": r.report_period_end,
+            "total_time": r.total_time_spent,
+            "activities": r.activities_completed,
+            "voice_rating_avg": r.voice_message_ratings.get("average_voice_rating", 0) if r.voice_message_ratings else 0,
+            "created_at": r.created_at
+        } for r in reports
+    ]
 
 if __name__ == "__main__":
     uvicorn.run(

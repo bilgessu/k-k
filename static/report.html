@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AtaMind - 2 Haftalık Rapor</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 2rem 1rem;
+        }
+        
+        .report-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .report-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .report-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .report-period {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .section {
+            margin-bottom: 3rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: #ffd700;
+            text-align: center;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffd700;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+        
+        .voice-analysis {
+            background: rgba(255, 193, 7, 0.1);
+            border: 2px solid rgba(255, 193, 7, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+        
+        .voice-rating-big {
+            font-size: 3rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .recommendations {
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+        }
+        
+        .recommendation-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .recommendation-icon {
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+        
+        .insights-list {
+            list-style: none;
+        }
+        
+        .insights-list li {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .insights-list li::before {
+            content: "✨";
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .chart-placeholder {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            transition: background 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .highlight-box {
+            background: linear-gradient(45deg, rgba(255, 107, 107, 0.2), rgba(78, 205, 196, 0.2));
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <button class="back-btn" onclick="window.close()">← Geri Dön</button>
+        
+        <div class="report-header">
+            <h1 class="report-title">📊 2 Haftalık Gelişim Raporu</h1>
+            <p class="report-period" id="reportPeriod">Rapor Yükleniyor...</p>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">📈 Genel Kullanım İstatistikleri</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalTime">-</div>
+                    <div class="stat-label">Toplam Süre (dakika)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="totalActivities">-</div>
+                    <div class="stat-label">Tamamlanan Aktivite</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="avgSession">-</div>
+                    <div class="stat-label">Ortalama Oturum (dk)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="engagementScore">-</div>
+                    <div class="stat-label">Katılım Skoru</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">🎤 Sesli Mesaj Analizi</h2>
+            <div class="voice-analysis">
+                <h3 style="text-align: center; margin-bottom: 1rem;">Ebeveyn Sesli Mesajı Değerlendirmesi</h3>
+                <div class="voice-rating-big" id="voiceRating">⭐⭐⭐⭐⭐</div>
+                <p style="text-align: center; font-size: 1.1rem;" id="voiceCount">Toplam 0 sesli mesaj puanlandı</p>
+                
+                <div class="highlight-box">
+                    <h4>🎯 İyileştirme Önerileri</h4>
+                    <div id="voiceRecommendations">
+                        <p>Sesli mesaj önerileri yükleniyor...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">🧠 AI Gelişim Analizi</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h4>💪 Güçlü Yönler</h4>
+                    <ul class="insights-list" id="strengths">
+                        <li>Analiz yükleniyor...</li>
+                    </ul>
+                </div>
+                <div class="stat-item">
+                    <h4>📚 Gelişim Alanları</h4>
+                    <ul class="insights-list" id="developmentAreas">
+                        <li>Analiz yükleniyor...</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">🎯 Önerilen Aktiviteler</h2>
+            <div class="recommendations" id="recommendedActivities">
+                <p>Öneriler yükleniyor...</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">📊 Favori İçerik Türleri</h2>
+            <div class="chart-placeholder">
+                <p>📈 İçerik tercihleri grafiği burada görünecek</p>
+                <div id="favoriteContent">Analiz yükleniyor...</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">🎪 Ebeveyn Rehberliği</h2>
+            <div class="recommendations" id="parentGuidance">
+                <div class="recommendation-item">
+                    <div class="recommendation-icon">👨‍👩‍👧‍👦</div>
+                    <div>
+                        <strong>Aile Zamanı:</strong> Çocuğunuzla geçirdiğiniz kaliteli zamanı artırmaya devam edin.
+                    </div>
+                </div>
+                <div class="recommendation-item">
+                    <div class="recommendation-icon">📚</div>
+                    <div>
+                        <strong>Hikaye Anlatımı:</strong> Günlük rutininizde hikaye anlatım zamanı oluşturun.
+                    </div>
+                </div>
+                <div class="recommendation-item">
+                    <div class="recommendation-icon">🌟</div>
+                    <div>
+                        <strong>Pozitif Pekiştirme:</strong> Çocuğunuzun başarılarını kutlamaya devam edin.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get report ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const reportId = urlParams.get('id');
+        const childId = urlParams.get('child');
+
+        async function loadReport() {
+            try {
+                // Try to load actual report
+                const response = await fetch(`/api/child/${childId}/reports`);
+                
+                if (response.ok) {
+                    const reports = await response.json();
+                    const report = reports.find(r => r.id === reportId);
+                    
+                    if (report) {
+                        displayReport(report);
+                        return;
+                    }
+                }
+                
+                // Fallback to demo data
+                displayDemoReport();
+                
+            } catch (error) {
+                console.error('Report loading error:', error);
+                displayDemoReport();
+            }
+        }
+
+        function displayReport(report) {
+            // Update report period
+            const startDate = new Date(report.period_start).toLocaleDateString('tr-TR');
+            const endDate = new Date(report.period_end).toLocaleDateString('tr-TR');
+            document.getElementById('reportPeriod').textContent = `${startDate} - ${endDate}`;
+
+            // Update statistics
+            document.getElementById('totalTime').textContent = Math.round(report.total_time || 0);
+            document.getElementById('totalActivities').textContent = report.activities || 0;
+            document.getElementById('avgSession').textContent = Math.round(report.average_session_length || 0);
+            document.getElementById('engagementScore').textContent = calculateEngagementScore(report);
+
+            // Voice analysis
+            updateVoiceAnalysis(report.voice_rating_avg || 0, report.total_voice_ratings || 0);
+        }
+
+        function displayDemoReport() {
+            // Demo data
+            const now = new Date();
+            const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+            
+            document.getElementById('reportPeriod').textContent = 
+                `${twoWeeksAgo.toLocaleDateString('tr-TR')} - ${now.toLocaleDateString('tr-TR')}`;
+
+            document.getElementById('totalTime').textContent = '180';
+            document.getElementById('totalActivities').textContent = '12';
+            document.getElementById('avgSession').textContent = '25';
+            document.getElementById('engagementScore').textContent = '85';
+
+            updateVoiceAnalysis(4.2, 5);
+            updateDemoInsights();
+        }
+
+        function updateVoiceAnalysis(avgRating, count) {
+            const stars = '⭐'.repeat(Math.round(avgRating));
+            document.getElementById('voiceRating').textContent = stars;
+            document.getElementById('voiceCount').textContent = `Toplam ${count} sesli mesaj puanlandı`;
+
+            // Voice recommendations
+            const recommendations = [
+                "🎤 Ses tonunuzu daha sıcak ve samimi yapın",
+                "📖 Hikayelerde daha fazla duygusal bağ kurun",
+                "⏱️ Sesli mesajlarınızı çocuğun dikkat süresine uygun tutun",
+                "🌟 Çocuğunuzun başarılarını daha çok vurgulayın"
+            ];
+
+            document.getElementById('voiceRecommendations').innerHTML = recommendations
+                .map(rec => `<p style="margin: 0.5rem 0;">${rec}</p>`).join('');
+        }
+
+        function updateDemoInsights() {
+            // Strengths
+            const strengths = [
+                "Hikaye dinlemeye büyük ilgi",
+                "Yüksek dikkat süresi",
+                "Etkileşimli içeriklerde başarılı",
+                "Pozitif geri bildirim veriyor"
+            ];
+
+            document.getElementById('strengths').innerHTML = strengths
+                .map(item => `<li>${item}</li>`).join('');
+
+            // Development areas
+            const developmentAreas = [
+                "Matematiğe daha fazla odaklanma",
+                "Sesli aktivitelerde katılım",
+                "Yaratıcı oyunlar",
+                "Sosyal beceri geliştirme"
+            ];
+
+            document.getElementById('developmentAreas').innerHTML = developmentAreas
+                .map(item => `<li>${item}</li>`).join('');
+
+            // Recommended activities
+            const activities = [
+                "🎨 Yaratıcı hikaye tamamlama oyunları",
+                "🎵 Türk kültürü müzik aktiviteleri", 
+                "🧩 Problem çözme bulmacaları",
+                "👥 Aile içi rol yapma oyunları",
+                "📚 İnteraktif Nasreddin Hoca hikayeleri"
+            ];
+
+            document.getElementById('recommendedActivities').innerHTML = activities
+                .map(activity => `
+                    <div class="recommendation-item">
+                        <div class="recommendation-icon">${activity.split(' ')[0]}</div>
+                        <div>${activity.substring(2)}</div>
+                    </div>
+                `).join('');
+
+            // Favorite content
+            document.getElementById('favoriteContent').innerHTML = `
+                <div style="margin: 1rem 0;">
+                    <strong>En Çok Beğenilen:</strong> 📚 Hikaye Dinleme (4.5/5)
+                </div>
+                <div style="margin: 1rem 0;">
+                    <strong>İkinci Favori:</strong> 🎤 Sesli Mesajlar (4.2/5)
+                </div>
+                <div style="margin: 1rem 0;">
+                    <strong>Gelişim Alanı:</strong> 🎮 Oyunlar (3.8/5)
+                </div>
+            `;
+        }
+
+        function calculateEngagementScore(report) {
+            // Simple engagement calculation for demo
+            const baseScore = Math.min((report.total_time || 0) / 200 * 100, 100);
+            return Math.round(baseScore);
+        }
+
+        // Load report when page loads
+        loadReport();
+    </script>
+</body>
+</html>
