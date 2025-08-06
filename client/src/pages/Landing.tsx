@@ -26,8 +26,8 @@ export default function Landing() {
         {/* Hero Image */}
         <div className="mb-8">
           <img 
-            src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&h=400" 
-            alt="Colorful children playing and learning" 
+            src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&h=400" 
+            alt="Happy family with children learning together" 
             className="rounded-2xl shadow-2xl w-full h-64 object-cover"
           />
         </div>
