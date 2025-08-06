@@ -1,16 +1,17 @@
-# AtaMind - AI-Powered Turkish Children's Education Platform
+# KökÖğreti - AI-Powered Turkish Children's Education Platform
 
-![AtaMind Logo](https://img.shields.io/badge/AtaMind-AI%20Education-blue?style=for-the-badge&logo=brain&logoColor=white)
+![KökÖğreti Logo](https://via.placeholder.com/200x80/98FB98/333333?text=KökÖğreti)
 
-> An intelligent voice education assistant that helps Turkish parents transmit cultural values and traditions to children through personalized, interactive storytelling powered by advanced multi-agent AI architecture.
+An intelligent voice education assistant that helps Turkish parents transmit cultural values and traditions to children through personalized, interactive storytelling powered by advanced multi-agent AI architecture.
 
 ## 🌟 Overview
 
-AtaMind combines cutting-edge AI technology with deep Turkish cultural understanding to create personalized educational experiences for children aged 3-12. Parents can record their value-based messages, which are transformed into culturally-rich, age-appropriate stories that teach traditional values, etiquette, and cultural knowledge.
+KökÖğreti combines cutting-edge AI technology with deep Turkish cultural understanding to create personalized educational experiences for children aged 3-12. Parents can record their value-based messages, which are transformed into culturally-rich, age-appropriate stories that teach traditional values, etiquette, and cultural knowledge.
 
 ## 🤖 Advanced Multi-Agent AI Architecture
 
 ### Core Technology Stack
+
 - **AI Engine**: Google Gemini 2.5 Pro for superior Turkish cultural storytelling
 - **Multi-Agent System**: Specialized AI agents working in orchestrated harmony
 - **Memory System**: Advanced child personalization and behavioral learning
@@ -54,11 +55,12 @@ AtaMind combines cutting-edge AI technology with deep Turkish cultural understan
 ### Backend
 - **Runtime**: Node.js + Express.js + TypeScript
 - **Database**: PostgreSQL + Drizzle ORM
-- **Authentication**: Session-based authentication system
+- **Authentication**: Replit OpenID Connect (OIDC)
 - **AI Integration**: Google Gemini 2.5 Pro API
 - **File Processing**: Multer for audio uploads
 
-### Key Features
+## Key Features
+
 - 🎯 **Multi-Agent Story Generation**: Four specialized AI agents collaborating
 - 📊 **AI Insights Dashboard**: Psychological profiling and developmental tracking
 - 🎵 **Voice Analytics**: Emotional tone analysis and parenting style detection
@@ -69,16 +71,16 @@ AtaMind combines cutting-edge AI technology with deep Turkish cultural understan
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
-- PostgreSQL database
+- Node.js 18+
+- PostgreSQL database (provided by Replit)
 - Google Gemini API key
 
 ### Installation
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/bilgessu/ataAI.git
-cd ataAI
+git clone https://github.com/bilgessu/k-k.git
+cd k-k
 ```
 
 2. **Install dependencies**
@@ -91,13 +93,11 @@ npm install
 cp .env.example .env
 ```
 
-Configure your `.env` file:
+4. **Configure your .env file:**
 ```env
-# Database
-DATABASE_URL=postgresql://username:password@localhost:5432/atamind
-
 # AI Services
 GEMINI_API_KEY=your_gemini_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here
 
 # Authentication
 SESSION_SECRET=your_super_secret_session_key_here
@@ -106,99 +106,102 @@ SESSION_SECRET=your_super_secret_session_key_here
 NODE_ENV=development
 ```
 
-4. **Set up the database**
+5. **Set up the database**
 ```bash
 npm run db:push
 ```
 
-5. **Start the development server**
+6. **Start the development server**
 ```bash
 npm run dev
 ```
 
-Visit `http://localhost:5000` to see AtaMind in action!
+Visit http://localhost:5000 to see KökÖğreti in action!
 
 ## 🔧 Running from GitHub
 
 ### Local Development Setup
 
-1. **System Requirements**
-   - Node.js 18 or higher
-   - PostgreSQL 13+ database
-   - Git for version control
+#### System Requirements
+- Node.js 18 or higher
+- PostgreSQL 13+ database
+- Git for version control
 
-2. **Database Setup**
-   ```bash
-   # Create PostgreSQL database
-   createdb atamind
-   
-   # Or using psql
-   psql -c "CREATE DATABASE atamind;"
-   ```
+#### Database Setup
+```bash
+# Create PostgreSQL database
+createdb kokogretim
 
-3. **Environment Configuration**
-   - Copy `.env.example` to `.env`
-   - Get Google Gemini API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
-   - Update database connection string
-   - Generate a secure session secret
+# Or using psql
+psql -c "CREATE DATABASE kokogretim;"
+```
 
-4. **Run the Application**
-   ```bash
-   # Install all dependencies
-   npm install
-   
-   # Initialize database schema
-   npm run db:push
-   
-   # Start development server (runs both frontend and backend)
-   npm run dev
-   ```
+#### Environment Configuration
+1. Copy .env.example to .env
+2. Get Google Gemini API key from Google AI Studio
+3. Get OpenAI API key from OpenAI Platform
+4. Update database connection string
+5. Generate a secure session secret
 
-5. **Access the Application**
-   - Frontend: `http://localhost:5000`
-   - Backend API: `http://localhost:5000/api`
+#### Run the Application
+```bash
+# Install all dependencies
+npm install
+
+# Initialize database schema
+npm run db:push
+
+# Start development server (runs both frontend and backend)
+npm run dev
+```
+
+#### Access the Application
+- **Frontend**: http://localhost:5000
+- **Backend API**: http://localhost:5000/api
 
 ### Production Deployment
 
-1. **Build for Production**
-   ```bash
-   npm run build
-   ```
+#### Build for Production
+```bash
+npm run build
+```
 
-2. **Environment Variables for Production**
-   ```env
-   NODE_ENV=production
-   DATABASE_URL=your_production_database_url
-   GEMINI_API_KEY=your_production_gemini_key
-   SESSION_SECRET=your_production_session_secret
-   ```
+#### Environment Variables for Production
+```env
+NODE_ENV=production
+DATABASE_URL=your_production_database_url
+GEMINI_API_KEY=your_production_gemini_key
+OPENAI_API_KEY=your_production_openai_key
+SESSION_SECRET=your_production_session_secret
+```
 
-3. **Start Production Server**
-   ```bash
-   npm start
-   ```
+#### Start Production Server
+```bash
+npm start
+```
 
-### Troubleshooting
+## Troubleshooting
 
-**Database Connection Issues:**
+### Database Connection Issues:
 ```bash
 # Check PostgreSQL is running
 sudo service postgresql status
 
 # Test connection
-psql -d atamind -c "SELECT version();"
+psql -d kokogretim -c "SELECT version();"
 ```
 
-**Missing Dependencies:**
+### Missing Dependencies:
 ```bash
 # Clear cache and reinstall
 rm -rf node_modules package-lock.json
 npm install
 ```
 
-**API Key Issues:**
-- Verify Gemini API key at [Google AI Studio](https://makersuite.google.com/app/apikey)
-- Check `.env` file exists and has correct values
+### API Key Issues:
+- Verify Gemini API key at Google AI Studio
+- Verify OpenAI API key at OpenAI Platform
+- Check .env file exists and has correct values
 - Restart the server after updating environment variables
 
 ## 📱 Key Features & Pages
@@ -209,26 +212,26 @@ npm install
 - Child profile management
 - AI insights access
 
-### 🎭 Multi-Agent Story Generation (`/multi-agent-story`)
+### 🎭 Multi-Agent Story Generation (/multi-agent-story)
 Experience all four AI agents working together:
 - Record parent values and messages
 - Real-time AI agent orchestration
 - Culturally-rich story creation
 - Safety validation and approval
 
-### 📊 AI Insights Dashboard (`/ai-insights`)
+### 📊 AI Insights Dashboard (/ai-insights)
 - Child psychological profiling
 - Developmental milestone tracking
 - Learning style analysis
 - Parent guidance recommendations
 
-### 🎤 Voice Analytics (`/voice-analytics`)
+### 🎤 Voice Analytics (/voice-analytics)
 - Emotional tone detection
 - Parenting style analysis
 - Cultural value extraction
 - Audio processing insights
 
-### 🔧 AI Architecture Documentation (`/ai-architecture`)
+### 🔧 AI Architecture Documentation (/ai-architecture)
 - Complete system architecture overview
 - Agent interaction workflows
 - Performance metrics and benchmarks
@@ -268,7 +271,7 @@ Experience all four AI agents working together:
 
 ### Project Structure
 ```
-atamind/
+kokogretim/
 ├── client/              # React frontend application
 │   ├── src/
 │   │   ├── components/  # Reusable UI components
@@ -294,7 +297,8 @@ npm run db:generate  # Generate migration files
 
 ## 🌍 Cultural Intelligence
 
-AtaMind specializes in Turkish cultural education:
+KökÖğreti specializes in Turkish cultural education:
+
 - **Traditional Values**: Respect, family bonds, hospitality, honesty
 - **Cultural Stories**: Turkish folklore, historical narratives, moral tales
 - **Language Learning**: Turkish vocabulary and cultural expressions
@@ -302,7 +306,7 @@ AtaMind specializes in Turkish cultural education:
 
 ## 🤝 Contributing
 
-We welcome contributions to AtaMind! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+We welcome contributions to KökÖğreti! Please see our Contributing Guidelines for details.
 
 ### Development Setup
 1. Fork the repository
@@ -313,21 +317,16 @@ We welcome contributions to AtaMind! Please see our [Contributing Guidelines](CO
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## 🙏 Acknowledgments
 
 - **Google Gemini**: Advanced AI capabilities for cultural storytelling
+- **OpenAI**: Text-to-speech and additional AI services
 - **Turkish Cultural Heritage**: Rich storytelling traditions and values
 - **Child Psychology Research**: Developmental learning principles
-- **Open Source Community**: Amazing tools and libraries that make AtaMind possible
-
-
+- **Open Source Community**: Amazing tools and libraries that make KökÖğreti possible
 
 ---
 
-**AtaMind** - Bridging generations through AI-powered cultural storytelling 🇹🇷
-
-![Made with Love](https://img.shields.io/badge/Made%20with-❤️-red.svg)
-![AI Powered](https://img.shields.io/badge/AI-Powered-blue.svg)
-![Turkish Culture](https://img.shields.io/badge/Turkish-Culture-red.svg)
+**KökÖğreti - Bridging generations through AI-powered cultural storytelling** 🇹🇷
