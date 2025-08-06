@@ -8,6 +8,8 @@ An intelligent voice education assistant that helps Turkish parents transmit cul
 
 KökÖğreti combines cutting-edge AI technology with deep Turkish cultural understanding to create personalized educational experiences for children aged 3-12. Parents can record their value-based messages, which are transformed into culturally-rich, age-appropriate stories that teach traditional values, etiquette, and cultural knowledge.
 
+**🚀 Now Available in Streamlit!** Experience KökÖğreti through our interactive web application with full Turkish language support and modern pale green design.
+
 ## 🤖 Advanced Multi-Agent AI Architecture
 
 ### Core Technology Stack
@@ -16,6 +18,7 @@ KökÖğreti combines cutting-edge AI technology with deep Turkish cultural unde
 - **Multi-Agent System**: Specialized AI agents working in orchestrated harmony
 - **Memory System**: Advanced child personalization and behavioral learning
 - **Safety Framework**: Multi-layered content validation and cultural appropriateness
+- **Web Framework**: Streamlit for interactive Python-based web applications
 
 ### Specialized AI Agents
 
@@ -45,19 +48,18 @@ KökÖğreti combines cutting-edge AI technology with deep Turkish cultural unde
 
 ## 🔧 Technical Architecture
 
-### Frontend
-- **Framework**: React 18 + TypeScript + Vite
-- **UI Library**: Radix UI + shadcn/ui + Tailwind CSS
-- **State Management**: TanStack React Query
-- **Routing**: Wouter for lightweight client-side routing
-- **Form Handling**: React Hook Form + Zod validation
+### Streamlit Application (Primary)
+- **Framework**: Streamlit 1.48+ with Python 3.11
+- **AI Integration**: Google Gemini 2.5 Pro API + OpenAI
+- **Data Visualization**: Plotly for interactive charts and analytics
+- **Database**: PostgreSQL with SQLAlchemy ORM
+- **UI Theme**: Custom pale green theme (#98FB98) with Turkish language support
 
-### Backend
-- **Runtime**: Node.js + Express.js + TypeScript
+### Legacy Architecture (React/Node.js - Optional)
+- **Frontend**: React 18 + TypeScript + Vite
+- **Backend**: Node.js + Express.js + TypeScript
 - **Database**: PostgreSQL + Drizzle ORM
 - **Authentication**: Replit OpenID Connect (OIDC)
-- **AI Integration**: Google Gemini 2.5 Pro API
-- **File Processing**: Multer for audio uploads
 
 ## Key Features
 
@@ -68,10 +70,10 @@ KökÖğreti combines cutting-edge AI technology with deep Turkish cultural unde
 - 🔒 **Advanced Safety**: Cultural appropriateness and content validation
 - 📈 **Real-time Analytics**: Performance metrics and predictive insights
 
-## 🚀 Quick Start
+## 🚀 Quick Start (Streamlit Version)
 
 ### Prerequisites
-- Node.js 18+
+- Python 3.11+
 - PostgreSQL database (provided by Replit)
 - Google Gemini API key
 
@@ -79,13 +81,13 @@ KökÖğreti combines cutting-edge AI technology with deep Turkish cultural unde
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/bilgessu/k-k.git
-cd k-k
+git clone https://github.com/bilgessu/k-k_25.git
+cd k-k_25
 ```
 
-2. **Install dependencies**
+2. **Install Python dependencies**
 ```bash
-npm install
+pip install streamlit google-generativeai openai plotly pandas numpy sqlalchemy psycopg2-binary python-dotenv streamlit-option-menu streamlit-extras
 ```
 
 3. **Set up environment variables**
@@ -99,24 +101,85 @@ cp .env.example .env
 GEMINI_API_KEY=your_gemini_api_key_here
 OPENAI_API_KEY=your_openai_api_key_here
 
-# Authentication
-SESSION_SECRET=your_super_secret_session_key_here
+# Database
+DATABASE_URL=your_postgresql_url_here
 
-# Development
-NODE_ENV=development
+# Application
+PORT=8501
 ```
 
-5. **Set up the database**
+5. **Start the Streamlit application**
 ```bash
-npm run db:push
+streamlit run streamlit_app.py --server.port 8501 --server.address 0.0.0.0
 ```
 
-6. **Start the development server**
+Visit http://localhost:8501 to see KökÖğreti in action!
+
+### Alternative Start Methods
 ```bash
-npm run dev
+./start_streamlit.sh          # Using shell script
+python run_streamlit.py       # Using Python runner
 ```
 
-Visit http://localhost:5000 to see KökÖğreti in action!
+## 📱 Streamlit Application Features & Pages
+
+### 🏠 Ana Sayfa (Home Dashboard)
+- Multi-agent AI feature showcase with interactive elements
+- Quick access buttons to all application features
+- Real-time activity graphs and system metrics
+- Beautiful pale green themed design with floating animations
+
+### 🎭 Hikaye Oluştur (Story Generation)
+Experience all four AI agents working together:
+- **Child Profile Setup**: Name, age, and value selection
+- **Parent Message Input**: Text-based cultural message input
+- **Real-time AI Processing**: Progress tracking with agent status updates
+- **Multi-Agent Orchestration**: See StorytellerAgent, GuardianAgent, ChildPsychologyAgent, and VoiceAgent in action
+- **Interactive Story Display**: Beautiful story cards with action buttons
+- **Turkish Cultural Integration**: Traditional values and storytelling methods
+
+### 📊 İstatistikler (Statistics Dashboard)
+- **Usage Analytics**: Interactive charts with weekly activity tracking
+- **Child Development Metrics**: Multi-dimensional progress visualization
+- **Values Learning Distribution**: Pie charts showing cultural value distribution
+- **Engagement Tracking**: Time spent, stories created, and learning progress
+- **Key Performance Indicators**: Beautiful metric cards with trend indicators
+
+### 🧠 AI Analizi (AI Insights)
+- **Child Psychological Profiling**: Comprehensive developmental assessment
+- **Learning Style Analysis**: Visual/auditory/kinesthetic distribution
+- **Multi-dimensional Radar Charts**: Development tracking across 6+ categories
+- **AI-Powered Recommendations**: Personalized suggestions for parents
+- **Safety and Cultural Alignment**: Real-time scoring and validation metrics
+
+### 🎤 Ses Analizi (Voice Analytics)
+- **Emotional Tone Detection**: Advanced voice analysis capabilities
+- **Parenting Style Analysis**: Interactive charts showing communication patterns
+- **Voice Improvement Suggestions**: Three-column layout with actionable recommendations
+- **Audio Processing Insights**: Technical metrics and optimization tips
+
+### 🏗️ AI Mimarisi (AI Architecture)
+- **System Architecture Overview**: Complete multi-agent system visualization
+- **Agent Performance Metrics**: Real-time success rates and response times
+- **Processing Flow Documentation**: Step-by-step AI workflow explanation
+- **Technical Implementation Details**: Architecture cards with detailed specifications
+
+## 🎯 Streamlit-Specific Features
+
+### Interactive Design Elements
+- **Custom CSS Styling**: Pale green theme (#98FB98) with enhanced visibility
+- **Floating Animations**: CSS animations for engaging user experience
+- **Responsive Layouts**: Multi-column designs optimized for different content types
+- **Turkish Language Support**: Complete localization with cultural context understanding
+- **Progress Visualizations**: Real-time progress bars for AI processing
+- **Interactive Charts**: Plotly-powered analytics with hover effects and filtering
+
+### Enhanced User Experience
+- **Sidebar Navigation**: Icon-based menu system with easy page switching
+- **Metric Cards**: Beautiful statistics display with trend indicators
+- **Story Cards**: Elegant story presentation with metadata and action buttons
+- **Status Indicators**: Real-time system health and AI agent status
+- **Quick Actions**: Fast access buttons for common operations
 
 ## 🔧 Running from GitHub
 
