@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Brain, Shield, Heart, Mic2, TrendingUp, Target, BookOpen, Users } from "lucide-react";
 import { Link } from "wouter";
@@ -35,14 +36,7 @@ interface AIInsight {
 export default function AIInsightsPage() {
   const { isLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
-  const [insights, setInsights] = useState<AIInsight[]>([]);
-  const [selectedChild, setSelectedChild] = useState<string>("");
-  const [isLoadingInsights, setIsLoadingInsights] = useState(false);
-
-  const { data: children = [] } = useQuery<any[]>({
-    queryKey: ['/api/children'],
-    enabled: isAuthenticated,
-  });
+  const [selectedChildId, setSelectedChildId] = useState<string>("");
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -58,363 +52,337 @@ export default function AIInsightsPage() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
-  // Load AI insights for each child
+  const { data: children = [], isLoading: childrenLoading } = useQuery<any[]>({
+    queryKey: ['/api/children'],
+    enabled: isAuthenticated,
+  });
+
+  const { data: aiInsights, isLoading: insightsLoading } = useQuery<AIInsight[]>({
+    queryKey: ['/api/ai-insights', selectedChildId],
+    enabled: isAuthenticated && !!selectedChildId,
+  });
+
+  // Auto-select first child if none selected
   useEffect(() => {
-    const loadInsights = async () => {
-      if (!children.length || !isAuthenticated) return;
-      
-      setIsLoadingInsights(true);
-      try {
-        const insightPromises = children.map(async (child: any) => {
-          try {
-            const response = await fetch(`/api/ai-insights/${child.id}`);
-            if (response.ok) {
-              const data = await response.json();
-              // Check if we got HTML instead of JSON (indicates routing issue)
-              if (typeof data === 'object' && data.childId) {
-                return data;
-              } else {
-                console.warn("Received non-JSON data, using fallback");
-                throw new Error("Invalid response format");
-              }
-            } else {
-              // Fallback for each child
-              return {
-                childId: child.id,
-                childName: child.name,
-                psychologicalProfile: {
-                  developmentalStage: `${child.age} yaş grubu`,
-                  learningStyle: child.learning_style || "Karma öğrenme",
-                  emotionalIntelligence: Math.round(75 + Math.random() * 25),
-                  culturalAlignment: Math.round(80 + Math.random() * 20),
-                  engagementLevel: Math.round(70 + Math.random() * 30)
-                },
-                safetyMetrics: {
-                  contentSafety: Math.round(95 + Math.random() * 5),
-                  ageAppropriateness: Math.round(90 + Math.random() * 10),
-                  culturalSensitivity: Math.round(85 + Math.random() * 15)
-                },
-                voiceAnalysis: {
-                  emotionalTone: "Sevecen ve destekleyici",
-                  energyLevel: Math.round(70 + Math.random() * 30),
-                  parentingStyle: "Demokratik"
-                },
-                recommendations: [
-                  `${child.name} için kişiselleştirilmiş hikayeler`,
-                  "Yaş grubuna uygun etkileşimli aktiviteler",
-                  "Türk kültürü değerleri içeren içerikler",
-                  "Çocuğun ilgi alanlarına odaklı materyaller"
-                ]
-              };
-            }
-          } catch (error) {
-            console.error(`Error loading insights for ${child.name}:`, error);
-            return null;
-          }
-        });
-        
-        const insightsResults = await Promise.all(insightPromises);
-        const validInsights = insightsResults.filter(Boolean);
-        setInsights(validInsights);
-        
-        if (validInsights.length > 0) {
-          setSelectedChild(validInsights[0].childId);
-        }
-        
-      } catch (error) {
-        console.error("Error loading AI insights:", error);
-        toast({
-          title: "Veri Yükleme Hatası",
-          description: "AI analiz verileri yüklenirken bir sorun oluştu",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoadingInsights(false);
-      }
-    };
+    if (children.length > 0 && !selectedChildId) {
+      setSelectedChildId(children[0].id);
+    }
+  }, [children, selectedChildId]);
 
-    loadInsights();
-  }, [children, isAuthenticated, toast]);
+  const currentInsight = aiInsights?.[0];
 
-  if (isLoading || isLoadingInsights) {
+  if (isLoading || childrenLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto mb-4"></div>
-          <p className="text-gray-600">
-            {isLoadingInsights ? "AI analiz verileri yükleniyor..." : "Yükleniyor..."}
-          </p>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950 dark:via-purple-950 dark:to-pink-950 p-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="h-6 w-6 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
+            <div className="h-8 w-64 bg-gray-200 dark:bg-gray-800 rounded animate-pulse"></div>
+          </div>
+          <div className="space-y-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-48 bg-gray-200 dark:bg-gray-800 rounded-lg animate-pulse"></div>
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
-  const selectedInsight = insights.find(i => i.childId === selectedChild);
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-50">
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm shadow-sm px-6 py-4 border-b border-blue-100">
-        <div className="flex items-center justify-between max-w-6xl mx-auto">
-          <div className="flex items-center space-x-4">
-            <Link to="/">
-              <button className="flex items-center text-gray-600 hover:text-blue-600 transition-colors">
-                <ArrowLeft className="w-5 h-5 mr-2" />
-                Ana Sayfa
-              </button>
-            </Link>
-            <div className="h-6 w-px bg-gray-300"></div>
-            <div className="flex items-center">
-              <Brain className="w-6 h-6 text-blue-600 mr-2" />
-              <h1 className="text-xl font-semibold text-gray-900">
-                AI Analiz ve İçgörüler
-              </h1>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-indigo-950 dark:via-purple-950 dark:to-pink-950 p-4">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-8">
+          <Link href="/">
+            <Button variant="outline" size="icon">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            🧠 AI İçgörüler
+          </h1>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-6 py-8">
-        {insights.length === 0 && !isLoadingInsights ? (
-          <div className="text-center py-12">
-            <Brain className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">Henüz çocuk profili yok</h3>
-            <p className="text-gray-500 mb-6">AI analiz yapabilmek için önce çocuk profili eklemelisiniz</p>
-            <Link to="/">
-              <Button>
-                Ana Sayfaya Dön
-              </Button>
-            </Link>
-          </div>
-        ) : selectedInsight && (
-          <div className="space-y-6">
-            {/* Child Selector */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Users className="w-5 h-5 mr-2" />
-                  Çocuk Profili Seçin
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex space-x-2">
-                  {insights.map((insight) => (
-                    <button
-                      key={insight.childId}
-                      onClick={() => setSelectedChild(insight.childId)}
-                      className={`px-4 py-2 rounded-lg transition-colors ${
-                        selectedChild === insight.childId 
-                          ? 'bg-blue-600 text-white' 
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {insight.childName}
-                    </button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* AI Insights Tabs */}
-            <Tabs defaultValue="psychology" className="space-y-4">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="psychology" className="flex items-center space-x-2">
-                  <Heart className="w-4 h-4" />
-                  <span>Psikoloji</span>
-                </TabsTrigger>
-                <TabsTrigger value="safety" className="flex items-center space-x-2">
-                  <Shield className="w-4 h-4" />
-                  <span>Güvenlik</span>
-                </TabsTrigger>
-                <TabsTrigger value="voice" className="flex items-center space-x-2">
-                  <Mic2 className="w-4 h-4" />
-                  <span>Ses Analizi</span>
-                </TabsTrigger>
-                <TabsTrigger value="recommendations" className="flex items-center space-x-2">
-                  <Target className="w-4 h-4" />
-                  <span>Öneriler</span>
-                </TabsTrigger>
-              </TabsList>
-
-              {/* Psychology Analysis */}
-              <TabsContent value="psychology" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <Heart className="w-5 h-5 mr-2 text-pink-600" />
-                      {selectedInsight.childName} için Psikolojik Profil
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-gray-700">Gelişim Aşaması</label>
-                        <Badge variant="secondary" className="mt-1 w-full justify-center">
-                          {selectedInsight.psychologicalProfile.developmentalStage}
-                        </Badge>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-700">Öğrenme Stili</label>
-                        <Badge variant="outline" className="mt-1 w-full justify-center">
-                          {selectedInsight.psychologicalProfile.learningStyle}
-                        </Badge>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <div>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>Duygusal Zeka</span>
-                          <span className="font-medium">{selectedInsight.psychologicalProfile.emotionalIntelligence}%</span>
-                        </div>
-                        <Progress value={selectedInsight.psychologicalProfile.emotionalIntelligence} className="h-2" />
-                      </div>
-                      
-                      <div>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>Kültürel Uyum</span>
-                          <span className="font-medium">{selectedInsight.psychologicalProfile.culturalAlignment}%</span>
-                        </div>
-                        <Progress value={selectedInsight.psychologicalProfile.culturalAlignment} className="h-2" />
-                      </div>
-                      
-                      <div>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>Katılım Seviyesi</span>
-                          <span className="font-medium">{selectedInsight.psychologicalProfile.engagementLevel}%</span>
-                        </div>
-                        <Progress value={selectedInsight.psychologicalProfile.engagementLevel} className="h-2" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {/* Safety Metrics */}
-              <TabsContent value="safety" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <Shield className="w-5 h-5 mr-2 text-green-600" />
-                      Güvenlik ve Uygunluk Metrikleri
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <div>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>İçerik Güvenliği</span>
-                          <span className="font-medium text-green-600">{selectedInsight.safetyMetrics.contentSafety}%</span>
-                        </div>
-                        <Progress value={selectedInsight.safetyMetrics.contentSafety} className="h-3" />
-                      </div>
-                      
-                      <div>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>Yaş Uygunluğu</span>
-                          <span className="font-medium text-blue-600">{selectedInsight.safetyMetrics.ageAppropriateness}%</span>
-                        </div>
-                        <Progress value={selectedInsight.safetyMetrics.ageAppropriateness} className="h-3" />
-                      </div>
-                      
-                      <div>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span>Kültürel Duyarlılık</span>
-                          <span className="font-medium text-purple-600">{selectedInsight.safetyMetrics.culturalSensitivity}%</span>
-                        </div>
-                        <Progress value={selectedInsight.safetyMetrics.culturalSensitivity} className="h-3" />
-                      </div>
-                    </div>
-                    
-                    <div className="mt-4 p-3 bg-green-50 rounded-lg">
-                      <p className="text-sm text-green-800">
-                        <Shield className="w-4 h-4 inline mr-1" />
-                        Tüm güvenlik kriterleri başarıyla karşılanıyor. Çocuğunuz için güvenli içerik üretimi devam ediyor.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {/* Voice Analysis */}
-              <TabsContent value="voice" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <Mic2 className="w-5 h-5 mr-2 text-blue-600" />
-                      Ebeveyn Ses Analizi
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-gray-700">Duygusal Ton</label>
-                        <Badge variant="secondary" className="mt-1 w-full justify-center">
-                          {selectedInsight.voiceAnalysis.emotionalTone}
-                        </Badge>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-700">Ebeveynlik Stili</label>
-                        <Badge variant="outline" className="mt-1 w-full justify-center">
-                          {selectedInsight.voiceAnalysis.parentingStyle}
-                        </Badge>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span>Enerji Seviyesi</span>
-                        <span className="font-medium">{selectedInsight.voiceAnalysis.energyLevel}%</span>
-                      </div>
-                      <Progress value={selectedInsight.voiceAnalysis.energyLevel} className="h-3" />
-                    </div>
-                    
-                    <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                      <p className="text-sm text-blue-800">
-                        <TrendingUp className="w-4 h-4 inline mr-1" />
-                        Sesinizin analizi, çocuğunuzla kuracağınız bağı güçlendirmek için hikaye tonunu optimize etmemize yardımcı oluyor.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              {/* AI Recommendations */}
-              <TabsContent value="recommendations" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <Target className="w-5 h-5 mr-2 text-amber-600" />
-                      AI Önerileri ve Gelişim Rehberi
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {selectedInsight.recommendations.map((rec, index) => (
-                        <div key={index} className="flex items-start space-x-3 p-3 bg-amber-50 rounded-lg">
-                          <BookOpen className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
-                          <p className="text-sm text-amber-800">{rec}</p>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    <div className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
-                      <h4 className="font-semibold text-purple-900 mb-2">Uzun Vadeli Gelişim Hedefleri</h4>
-                      <ul className="text-sm text-purple-800 space-y-1">
-                        <li>• Türk kültürü değerlerinin derinlemesine öğrenilmesi</li>
-                        <li>• Duygusal zeka ve empati becerisinin geliştirilmesi</li>
-                        <li>• Yaratıcı düşünme ve problem çözme yetilerinin artırılması</li>
-                        <li>• Ailevi bağların ve geleneksel değerlerin güçlendirilmesi</li>
-                      </ul>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
+        {/* Child Selection */}
+        {children.length > 1 && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="text-lg">Çocuk Seçimi</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2 flex-wrap">
+                {children.map((child) => (
+                  <Button
+                    key={child.id}
+                    variant={selectedChildId === child.id ? "default" : "outline"}
+                    onClick={() => setSelectedChildId(child.id)}
+                    className="transition-all duration-200"
+                  >
+                    {child.name}
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         )}
-      </main>
+
+        {!selectedChildId ? (
+          <Card>
+            <CardContent className="p-12 text-center">
+              <Users className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+              <h3 className="text-xl font-semibold mb-2">Çocuk Profili Bulunamadı</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                AI içgörülerini görüntülemek için önce bir çocuk profili oluşturun.
+              </p>
+              <Link href="/">
+                <Button>Ana Sayfaya Dön</Button>
+              </Link>
+            </CardContent>
+          </Card>
+        ) : (
+          <>
+            {insightsLoading ? (
+              <div className="space-y-6">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-48 bg-gray-200 dark:bg-gray-800 rounded-lg animate-pulse"></div>
+                ))}
+              </div>
+            ) : currentInsight ? (
+              <Tabs defaultValue="psychology" className="space-y-6">
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="psychology">Psikolojik Profil</TabsTrigger>
+                  <TabsTrigger value="safety">Güvenlik Metrikleri</TabsTrigger>
+                  <TabsTrigger value="voice">Ses Analizi</TabsTrigger>
+                  <TabsTrigger value="recommendations">Öneriler</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="psychology">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Brain className="h-5 w-5 text-purple-600" />
+                          Gelişim Aşaması
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <Badge variant="secondary" className="text-sm">
+                          {currentInsight.psychologicalProfile.developmentalStage}
+                        </Badge>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <BookOpen className="h-5 w-5 text-blue-600" />
+                          Öğrenme Stili
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <Badge variant="outline" className="text-sm">
+                          {currentInsight.psychologicalProfile.learningStyle}
+                        </Badge>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Heart className="h-5 w-5 text-red-600" />
+                          Duygusal Zeka
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-sm">Seviye</span>
+                            <span className="text-sm font-semibold">
+                              {currentInsight.psychologicalProfile.emotionalIntelligence}/100
+                            </span>
+                          </div>
+                          <Progress value={currentInsight.psychologicalProfile.emotionalIntelligence} />
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Target className="h-5 w-5 text-green-600" />
+                          Kültürel Uyum
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-sm">Uyum</span>
+                            <span className="text-sm font-semibold">
+                              {currentInsight.psychologicalProfile.culturalAlignment}/100
+                            </span>
+                          </div>
+                          <Progress value={currentInsight.psychologicalProfile.culturalAlignment} />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="safety">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Shield className="h-5 w-5 text-green-600" />
+                          İçerik Güvenliği
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-sm">Güvenlik Skoru</span>
+                            <span className="text-sm font-semibold">
+                              {currentInsight.safetyMetrics.contentSafety}/100
+                            </span>
+                          </div>
+                          <Progress value={currentInsight.safetyMetrics.contentSafety} />
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Users className="h-5 w-5 text-blue-600" />
+                          Yaş Uygunluğu
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-sm">Uygunluk</span>
+                            <span className="text-sm font-semibold">
+                              {currentInsight.safetyMetrics.ageAppropriateness}/100
+                            </span>
+                          </div>
+                          <Progress value={currentInsight.safetyMetrics.ageAppropriateness} />
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Heart className="h-5 w-5 text-red-600" />
+                          Kültürel Duyarlılık
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-sm">Duyarlılık</span>
+                            <span className="text-sm font-semibold">
+                              {currentInsight.safetyMetrics.culturalSensitivity}/100
+                            </span>
+                          </div>
+                          <Progress value={currentInsight.safetyMetrics.culturalSensitivity} />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="voice">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Mic2 className="h-5 w-5 text-purple-600" />
+                          Duygusal Ton
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <Badge variant="outline" className="text-sm">
+                          {currentInsight.voiceAnalysis.emotionalTone}
+                        </Badge>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <TrendingUp className="h-5 w-5 text-orange-600" />
+                          Enerji Seviyesi
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-sm">Enerji</span>
+                            <span className="text-sm font-semibold">
+                              {currentInsight.voiceAnalysis.energyLevel}/100
+                            </span>
+                          </div>
+                          <Progress value={currentInsight.voiceAnalysis.energyLevel} />
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card className="md:col-span-2">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Heart className="h-5 w-5 text-pink-600" />
+                          Ebeveynlik Stili
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <Badge variant="secondary" className="text-sm">
+                          {currentInsight.voiceAnalysis.parentingStyle}
+                        </Badge>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="recommendations">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Target className="h-5 w-5 text-green-600" />
+                        AI Önerileri
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {currentInsight.recommendations.map((recommendation, index) => (
+                          <div key={index} className="p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border-l-4 border-green-500">
+                            <p className="text-sm">{recommendation}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            ) : (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <Brain className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+                  <h3 className="text-xl font-semibold mb-2">Henüz Analiz Yok</h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    Bu çocuk için henüz AI analizi bulunmuyor. 
+                    Birkaç aktivite tamamladıktan sonra detaylı içgörüler burada görünecek.
+                  </p>
+                  <Link href="/">
+                    <Button>Aktivitelere Başla</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
