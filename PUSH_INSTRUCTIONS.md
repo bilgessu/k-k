@@ -8,7 +8,7 @@
 ✅ Statistics and AI Insights pages complete
 
 ## Target Repository
-https://github.com/bilgessu/k-k
+https://github.com/bilgessu/btk_25 (CURRENTLY CONNECTED)
 
 ## Method 1: Replit Git Panel (Recommended)
 1. Look for the **Git/Version Control** icon in the left sidebar
