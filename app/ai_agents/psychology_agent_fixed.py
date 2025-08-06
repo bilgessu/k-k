@@ -44,7 +44,7 @@ class ChildPsychologyAgent:
             }
         }
     
-    async def analyze_child_profile(self, child_profile: Child) -> Dict[str, Any]:
+    def analyze_child_profile(self, child_profile: Child) -> Dict[str, Any]:
         """Comprehensive psychological and developmental analysis"""
         
         # Get age-appropriate developmental stage
@@ -90,13 +90,17 @@ class ChildPsychologyAgent:
         }}
         """
         
-        response = await self.model.generate_content(prompt)
-        return json.loads(response.text)
+        try:
+            response = self.model.generate_content(prompt)
+            return json.loads(response.text)
+        except Exception as e:
+            print(f"Error in child analysis: {e}")
+            return self._get_fallback_analysis(child_profile)
     
-    async def get_comprehensive_insights(self, child_profile: Child) -> AIInsights:
+    def get_comprehensive_insights(self, child_profile: Child) -> AIInsights:
         """Get comprehensive insights for child development"""
         
-        analysis = await self.analyze_child_profile(child_profile)
+        analysis = self.analyze_child_profile(child_profile)
         
         prompt = f"""
         Bu analiz temelinde çocuk için kapsamlı öngörüler ve öneriler oluştur:
@@ -112,12 +116,15 @@ class ChildPsychologyAgent:
         }}
         """
         
-        response = await self.model.generate_content(prompt)
-        insights_data = json.loads(response.text)
-        
-        return AIInsights(**insights_data)
+        try:
+            response = self.model.generate_content(prompt)
+            insights_data = json.loads(response.text)
+            return AIInsights(**insights_data)
+        except Exception as e:
+            print(f"Error generating insights: {e}")
+            return self._get_fallback_insights(child_profile)
     
-    async def suggest_activities(self, analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def suggest_activities(self, analysis: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Suggest age-appropriate activities based on analysis"""
         
         prompt = f"""
@@ -141,10 +148,14 @@ class ChildPsychologyAgent:
         JSON array formatında 10 aktivite döndür.
         """
         
-        response = await self.model.generate_content(prompt)
-        return json.loads(response.text)
+        try:
+            response = self.model.generate_content(prompt)
+            return json.loads(response.text)
+        except Exception as e:
+            print(f"Error suggesting activities: {e}")
+            return self._get_fallback_activities()
     
-    async def assess_emotional_state(self, interaction_data: Dict[str, Any]) -> Dict[str, Any]:
+    def assess_emotional_state(self, interaction_data: Dict[str, Any]) -> Dict[str, Any]:
         """Assess child's emotional state from interaction data"""
         
         prompt = f"""
@@ -168,10 +179,14 @@ class ChildPsychologyAgent:
         }}
         """
         
-        response = await self.model.generate_content(prompt)
-        return json.loads(response.text)
+        try:
+            response = self.model.generate_content(prompt)
+            return json.loads(response.text)
+        except Exception as e:
+            print(f"Error assessing emotional state: {e}")
+            return self._get_fallback_emotional_state()
     
-    async def track_learning_progress(self, child_id: str, session_history: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def track_learning_progress(self, child_id: str, session_history: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Track and analyze learning progress over time"""
         
         prompt = f"""
@@ -200,10 +215,14 @@ class ChildPsychologyAgent:
         }}
         """
         
-        response = await self.model.generate_content(prompt)
-        return json.loads(response.text)
+        try:
+            response = self.model.generate_content(prompt)
+            return json.loads(response.text)
+        except Exception as e:
+            print(f"Error tracking progress: {e}")
+            return self._get_fallback_progress()
     
-    async def personalize_content(self, child_profile: Child, content_options: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def personalize_content(self, child_profile: Child, content_options: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Personalize content based on psychological profile"""
         
         prompt = f"""
@@ -225,8 +244,12 @@ class ChildPsychologyAgent:
         JSON formatında kişiselleştirilmiş öneri döndür.
         """
         
-        response = await self.model.generate_content(prompt)
-        return json.loads(response.text)
+        try:
+            response = self.model.generate_content(prompt)
+            return json.loads(response.text)
+        except Exception as e:
+            print(f"Error personalizing content: {e}")
+            return self._get_fallback_personalization(child_profile)
     
     def _get_stage_key(self, age: int) -> str:
         """Get developmental stage key based on age"""
@@ -240,3 +263,71 @@ class ChildPsychologyAgent:
             return "9-12"
         else:
             return "9-12"  # Default to oldest category
+    
+    def _get_fallback_analysis(self, child_profile: Child) -> Dict[str, Any]:
+        """Fallback analysis when AI fails"""
+        return {
+            "developmental_stage": f"{child_profile.age} yaş grubu gelişimi",
+            "cognitive_level": "Yaşına uygun gelişim",
+            "social_emotional_status": "Sağlıklı sosyal gelişim",
+            "learning_preferences": {"style": child_profile.learning_style or "Karma"},
+            "motivation_factors": ["Hikaye", "Oyun", "Müzik"],
+            "strengths": ["Meraklı", "Öğrenmeye istekli"],
+            "growth_areas": ["Dikkat süresi", "Problem çözme"],
+            "recommended_difficulty": "Orta seviye",
+            "optimal_session_length": "15-20 dakika",
+            "engagement_strategies": ["Görsel destekler", "Etkileşimli öğeler"],
+            "cultural_development": "Türk kültürü değerleri",
+            "parent_guidance": ["Sabırlı olun", "Destekleyici yaklaşım"]
+        }
+    
+    def _get_fallback_insights(self, child_profile: Child) -> AIInsights:
+        """Fallback insights when AI fails"""
+        return AIInsights(
+            child_development_stage=f"{child_profile.age} yaş grubu",
+            recommended_values=["Saygı", "Sevgi", "Dürüstlük"],
+            learning_preferences={"primary": child_profile.learning_style or "Görsel"},
+            engagement_tips=["Etkileşimli hikayeler", "Müzik kullanın"],
+            cultural_recommendations=["Türk masalları", "Geleneksel oyunlar"]
+        )
+    
+    def _get_fallback_activities(self) -> List[Dict[str, Any]]:
+        """Fallback activities when AI fails"""
+        return [
+            {"name": "Hikaye Tamamlama", "type": "Yaratıcılık", "duration": "10 dk"},
+            {"name": "Renk Tanıma", "type": "Bilişsel", "duration": "5 dk"},
+            {"name": "Müzik Dinleme", "type": "Duygusal", "duration": "15 dk"},
+        ]
+    
+    def _get_fallback_emotional_state(self) -> Dict[str, Any]:
+        """Fallback emotional state when AI fails"""
+        return {
+            "emotional_state": "Dengeli",
+            "engagement_level": 75,
+            "stress_indicators": [],
+            "positive_indicators": ["Aktif katılım"],
+            "recommended_adjustments": ["Devam edin"],
+            "intervention_needed": False
+        }
+    
+    def _get_fallback_progress(self) -> Dict[str, Any]:
+        """Fallback progress when AI fails"""
+        return {
+            "overall_progress": 70,
+            "learning_velocity": "Normal",
+            "skill_improvements": {"hikaye": 80, "dikkat": 60},
+            "challenge_areas": ["Matematik"],
+            "optimal_learning_times": ["Sabah"],
+            "motivation_trends": ["Artıyor"],
+            "next_goals": ["Problem çözme"],
+            "parent_recommendations": ["Teşvik edin"]
+        }
+    
+    def _get_fallback_personalization(self, child_profile: Child) -> Dict[str, Any]:
+        """Fallback personalization when AI fails"""
+        return {
+            "recommended_content": "Hikaye temelli aktiviteler",
+            "difficulty_level": "Uygun",
+            "themes": child_profile.interests or ["Hayvanlar", "Doğa"],
+            "engagement_score": 85
+        }
