@@ -52,7 +52,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
       {/* Header */}
-      <header className="bg-gradient-to-r from-pink-100 to-purple-100 shadow-sm px-6 py-4 border-b-2 border-purple-200">
+      <header className="bg-gradient-to-r from-green-100 to-emerald-100 shadow-sm px-6 py-4 border-b-2 border-emerald-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <div className="w-10 h-10 mr-3 rainbow-bg rounded-full flex items-center justify-center">

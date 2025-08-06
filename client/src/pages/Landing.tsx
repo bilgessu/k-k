@@ -4,7 +4,7 @@ import waveImage from "@assets/premium_photo-1682095261811-676fc6d0ad80_17544939
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-400 via-purple-500 to-blue-500 text-white relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-green-300 via-emerald-400 to-teal-500 text-white relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-10 left-10 w-20 h-20 rounded-full colorful-pulse"></div>
