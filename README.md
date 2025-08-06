@@ -1,6 +1,6 @@
 # KökÖğreti - AI-Powered Turkish Children's Education Platform
 
-![KökÖğreti Logo](https://via.placeholder.com/200x80/98FB98/333333?text=KökÖğreti)
+![KökÖğreti Logo](https://placehold.co/200x80/98FB98/333333/png?text=K%C3%B6k%C3%96%C4%9Freti)
 
 An intelligent voice education assistant that helps Turkish parents transmit cultural values and traditions to children through personalized, interactive storytelling powered by advanced multi-agent AI architecture.
 
