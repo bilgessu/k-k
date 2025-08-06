@@ -68,7 +68,14 @@ export default function AIInsightsPage() {
           try {
             const response = await fetch(`/api/ai-insights/${child.id}`);
             if (response.ok) {
-              return await response.json();
+              const data = await response.json();
+              // Check if we got HTML instead of JSON (indicates routing issue)
+              if (typeof data === 'object' && data.childId) {
+                return data;
+              } else {
+                console.warn("Received non-JSON data, using fallback");
+                throw new Error("Invalid response format");
+              }
             } else {
               // Fallback for each child
               return {

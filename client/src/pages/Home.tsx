@@ -235,6 +235,28 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
+            {/* Statistics */}
+            <Card className="border-2 border-yellow-200 bg-gradient-to-br from-yellow-50 to-orange-50">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-gradient-to-br from-yellow-600 to-orange-600 rounded-full flex items-center justify-center mr-3">
+                      <BarChart3 className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-textDark">İstatistikler</h4>
+                      <p className="text-xs text-gray-600">Kullanım ve ilerleme verileri</p>
+                    </div>
+                  </div>
+                  <Link href="/statistics">
+                    <Button size="sm" className="bg-gradient-to-r from-yellow-600 to-orange-600 text-white">
+                      Görüntüle
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Story Generation */}
             <Card className="border-2 border-orange-200 bg-gradient-to-br from-orange-50 to-red-50">
               <CardContent className="p-4">

@@ -13,6 +13,7 @@ import ChildMode from "@/pages/ChildMode";
 import MultiAgentStory from "@/pages/MultiAgentStory";
 import AIInsights from "@/pages/AIInsights";
 import VoiceAnalytics from "@/pages/VoiceAnalytics";
+import Statistics from "@/pages/Statistics";
 import AIArchitecture from "@/pages/AIArchitecture";
 import NotFound from "@/pages/not-found";
 
@@ -34,6 +35,7 @@ function Router() {
           <Route path="/multi-agent-story" component={MultiAgentStory} />
           <Route path="/ai-insights" component={AIInsights} />
           <Route path="/voice-analytics" component={VoiceAnalytics} />
+          <Route path="/statistics" component={Statistics} />
           <Route path="/ai-architecture" component={AIArchitecture} />
         </>
       )}
