@@ -76,11 +76,13 @@ export default function StoryPlayer() {
 
         {/* Story Illustration */}
         <div className="text-center mb-8">
-          <img 
-            src="/attached_assets/banner-view-happy-family-kids-use-laptop-wide-banner-panoramic-view-happy-young-caucasian-family-renters-two-small-205164339.jpg_1754438260890.webp" 
-            alt="Family storytelling time" 
-            className="w-64 h-48 rounded-2xl mx-auto object-cover shadow-2xl"
-          />
+          <div className="bg-gradient-to-br from-orange-200 via-red-200 to-pink-200 rounded-2xl shadow-2xl p-6 flex items-center justify-center mx-auto w-64">
+            <div className="text-center">
+              <div className="text-7xl mb-3">🎭🌟📖</div>
+              <h4 className="text-xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent mb-1">Hikaye Dünyası</h4>
+              <p className="text-orange-700 text-sm font-medium">Hayal gücünü keşfet!</p>
+            </div>
+          </div>
         </div>
 
         {/* Audio Player */}

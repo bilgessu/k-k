@@ -40,8 +40,8 @@ export default function ChildMode() {
       <div className="px-6">
         {/* Character Avatar */}
         <div className="text-center mb-8">
-          <div className="w-32 h-32 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
-            <span className="text-white text-6xl">🌟</span>
+          <div className="w-32 h-32 rainbow-bg rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg colorful-pulse">
+            <span className="text-white text-6xl">🦄✨</span>
           </div>
           <p className="text-lg font-medium text-textDark">AtaMind arkadaşın hazır!</p>
         </div>

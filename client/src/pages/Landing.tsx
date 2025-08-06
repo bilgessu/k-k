@@ -25,11 +25,13 @@ export default function Landing() {
 
         {/* Hero Image */}
         <div className="mb-8">
-          <img 
-            src="/attached_assets/banner-view-happy-family-kids-use-laptop-wide-banner-panoramic-view-happy-young-caucasian-family-renters-two-small-205164339.jpg_1754438260890.webp" 
-            alt="Happy family learning together with laptop" 
-            className="rounded-2xl shadow-2xl w-full h-64 object-cover"
-          />
+          <div className="bg-gradient-to-br from-yellow-200 via-pink-200 to-purple-200 rounded-2xl shadow-2xl p-8 flex items-center justify-center">
+            <div className="text-center">
+              <div className="text-8xl mb-4">🎨📚✨</div>
+              <h3 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">Renkli Öğrenme</h3>
+              <p className="text-purple-700 text-lg font-medium">AI ile eğlenceli hikayeler</p>
+            </div>
+          </div>
         </div>
 
         {/* Feature Highlights */}
