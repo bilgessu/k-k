@@ -25,13 +25,11 @@ export default function Landing() {
 
         {/* Hero Image */}
         <div className="mb-8">
-          <div className="bg-gradient-to-br from-yellow-200 via-pink-200 to-purple-200 rounded-2xl shadow-2xl p-8 flex items-center justify-center">
-            <div className="text-center">
-              <div className="text-8xl mb-4">🎨📚✨</div>
-              <h3 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">Renkli Öğrenme</h3>
-              <p className="text-purple-700 text-lg font-medium">AI ile eğlenceli hikayeler</p>
-            </div>
-          </div>
+          <img 
+            src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&h=400" 
+            alt="Colorful children playing and learning" 
+            className="rounded-2xl shadow-2xl w-full h-64 object-cover"
+          />
         </div>
 
         {/* Feature Highlights */}
