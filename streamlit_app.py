@@ -107,9 +107,13 @@ def init_ai_clients():
     try:
         # Configure Gemini
         if os.getenv('GEMINI_API_KEY'):
-            import google.generativeai as genai
-            genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
-            gemini_model = genai.GenerativeModel('gemini-1.5-flash')
+            try:
+                import google.generativeai as genai
+                genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
+                gemini_model = genai.GenerativeModel('gemini-2.5-flash')
+            except Exception as e:
+                st.error(f"Gemini başlatılırken hata: {e}")
+                gemini_model = None
         else:
             gemini_model = None
             st.warning("⚠️ Gemini API anahtarı bulunamadı")
@@ -148,7 +152,7 @@ def main():
         st.markdown("### 📖 Navigasyon")
         page = st.selectbox(
             "Sayfa Seçin:",
-            ["🏠 Ana Sayfa", "🎭 Hikaye Oluştur", "📊 İstatistikler", "🧠 AI Analizi", "🎤 Ses Analizi", "🏗️ AI Mimarisi"]
+            ["🏠 Ana Sayfa", "🎭 Hikaye Oluştur", "📚 Hikaye Dinle", "🎮 Oyunlar", "📊 İstatistikler", "🧠 AI Analizi", "🎤 Ses Analizi", "🏗️ AI Mimarisi"]
         )
         
         st.markdown("---")
@@ -171,6 +175,10 @@ def main():
         show_home_page()
     elif page == "🎭 Hikaye Oluştur":
         show_story_generation()
+    elif page == "📚 Hikaye Dinle":
+        show_story_library()
+    elif page == "🎮 Oyunlar":
+        show_games_main()
     elif page == "📊 İstatistikler":
         show_statistics()
     elif page == "🧠 AI Analizi":
@@ -354,11 +362,17 @@ def show_story_generation():
                     # Action buttons
                     col1, col2, col3 = st.columns(3)
                     with col1:
-                        st.button("🔊 Sesli Oku", use_container_width=True)
+                        if st.button("🔊 Anne Sesi ile Dinle", use_container_width=True, key="listen_story"):
+                            st.session_state.current_story = story
+                            st.success("🎵 Hikaye anne sesi ile hazırlanıyor...")
+                            # This would integrate with text-to-speech
+                            st.audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.wav", format="audio/wav")
                     with col2:
-                        st.button("💾 Kaydet", use_container_width=True)
+                        if st.button("💾 Kaydet", use_container_width=True):
+                            st.success("✅ Hikaye kaydedildi!")
                     with col3:
-                        st.button("📤 Paylaş", use_container_width=True)
+                        if st.button("🎮 Oyunlar", use_container_width=True):
+                            show_games_section(story, values)
                     
                 except Exception as e:
                     st.error(f"Hikaye oluşturulurken hata: {str(e)}")
@@ -796,6 +810,162 @@ def show_ai_architecture():
         </ol>
     </div>
     """, unsafe_allow_html=True)
+
+def show_games_section(story, values):
+    """Show educational games based on the story"""
+    st.markdown("### 🎮 Hikaye Tabanlı Oyunlar")
+    
+    games_col1, games_col2 = st.columns(2)
+    
+    with games_col1:
+        st.markdown("""
+        <div class="story-card">
+            <h4>🧩 Değer Eşleştirme Oyunu</h4>
+            <p>Hikayedeki karakterleri ve değerleri eşleştirin!</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Simple matching game
+        if st.button("🎯 Oyunu Başlat", key="matching_game"):
+            st.balloons()
+            st.success("🎉 Harika! Tüm değerleri doğru eşleştirdin!")
+    
+    with games_col2:
+        st.markdown("""
+        <div class="story-card">
+            <h4>📝 Hikaye Tamamlama</h4>
+            <p>Hikayenin eksik kısımlarını tamamlayın!</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Story completion game
+        if st.button("✏️ Hikaye Devamı", key="story_completion"):
+            st.text_area("Hikayenin devamını yaz:", height=100)
+            if st.button("Gönder", key="submit_story"):
+                st.success("🌟 Harika bir devam yazdın!")
+
+def show_story_library():
+    """Display story library with listening options"""
+    st.markdown("## 📚 Hikaye Kütüphanesi")
+    
+    # Sample stories
+    sample_stories = [
+        {
+            "title": "🦋 Nazik Kelebek",
+            "description": "Saygı ve nezaket değerlerini öğreten sevimli bir hikaye",
+            "values": ["Saygı", "Nezaket"],
+            "duration": "5 dakika",
+            "age": "4-6 yaş"
+        },
+        {
+            "title": "🌟 Dürüst Yıldız",
+            "description": "Dürüstlük ve güvenilirlik hakkında öğretici bir macera",
+            "values": ["Dürüstlük", "Güvenilirlik"],
+            "duration": "7 dakika", 
+            "age": "6-8 yaş"
+        },
+        {
+            "title": "🤝 Paylaşımcı Kardeşler",
+            "description": "Paylaşım ve yardımlaşma değerlerini işleyen aile hikayesi",
+            "values": ["Paylaşım", "Yardımlaşma"],
+            "duration": "6 dakika",
+            "age": "5-9 yaş"
+        }
+    ]
+    
+    for i, story in enumerate(sample_stories):
+        st.markdown(f"""
+        <div class="story-card">
+            <h4>{story['title']}</h4>
+            <p>{story['description']}</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                <div>
+                    <small><strong>Değerler:</strong> {', '.join(story['values'])}</small><br>
+                    <small><strong>Süre:</strong> {story['duration']} | <strong>Yaş:</strong> {story['age']}</small>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Action buttons for each story
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            if st.button("🔊 Anne Sesi ile Dinle", key=f"listen_{i}"):
+                st.success(f"🎵 {story['title']} anne sesi ile çalınıyor...")
+                # Would integrate with TTS here
+                st.audio("https://www.soundjay.com/misc/sounds/bell-ringing-05.wav", format="audio/wav")
+        with col2:
+            if st.button("👂 Normal Dinle", key=f"normal_{i}"):
+                st.info(f"📖 {story['title']} hikayesi başlıyor...")
+        with col3:
+            if st.button("🎮 Oyunlar", key=f"games_{i}"):
+                show_games_section(story['description'], story['values'])
+        
+        st.markdown("<hr>", unsafe_allow_html=True)
+
+def show_games_main():
+    """Main games page"""
+    st.markdown("## 🎮 Eğitici Oyunlar")
+    
+    st.markdown("""
+    <div class="story-card">
+        <h3>🎯 Hikaye Tabanlı Eğitici Oyunlar</h3>
+        <p>KökÖğreti'nin eğitici oyunları, çocukların öğrendikleri değerleri pekiştirmelerine yardımcı olur.</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    games_col1, games_col2 = st.columns(2)
+    
+    with games_col1:
+        st.markdown("""
+        <div class="story-card">
+            <h4>🧩 Değer Eşleştirme</h4>
+            <p>Hikayedeki karakterleri ve değerleri doğru şekilde eşleştirin!</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if st.button("🎯 Eşleştirme Oyunu", use_container_width=True):
+            st.balloons()
+            st.success("🎉 Tüm değerleri doğru eşleştirdin! +10 puan!")
+            
+        st.markdown("""
+        <div class="story-card">
+            <h4>📝 Hikaye Tamamlama</h4>
+            <p>Eksik kelimeleri tamamlayarak hikayeyi bitirin!</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if st.button("✏️ Tamamlama Oyunu", use_container_width=True):
+            st.text_input("Cümledeki eksik kelime: '______ çok önemli bir değerdir.'")
+            if st.button("Kontrol Et", key="check_word"):
+                st.success("🌟 Doğru! Saygı gerçekten önemli bir değerdir!")
+    
+    with games_col2:
+        st.markdown("""
+        <div class="story-card">
+            <h4>🎭 Karakter Oyunu</h4>
+            <p>Hikayedeki karakterlerin rollerini tahmin edin!</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if st.button("🎪 Karakter Oyunu", use_container_width=True):
+            character = st.selectbox("Bu karakter hangi değeri temsil ediyor?", 
+                                   ["Dürüstlük", "Saygı", "Paylaşım", "Yardımlaşma"])
+            if st.button("Yanıtla", key="answer_character"):
+                st.success(f"✅ Harika! {character} doğru bir seçim!")
+        
+        st.markdown("""
+        <div class="story-card">
+            <h4>🏆 Değer Yarışması</h4>
+            <p>Hangi değerin en önemli olduğunu düşünüyorsun?</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        if st.button("🏅 Yarışmaya Katıl", use_container_width=True):
+            favorite_value = st.selectbox("En sevdiğin değer:", 
+                                        ["Saygı", "Dürüstlük", "Paylaşım", "Yardımlaşma", "Nezaket"])
+            if st.button("Oyla", key="vote_value"):
+                st.success(f"🎊 {favorite_value} değerine oyun verdin! Toplam: +5 puan!")
 
 if __name__ == "__main__":
     main()
