@@ -24,15 +24,15 @@
   --ring: hsl(207, 90%, 54%);
   --radius: 1rem;
   
-  /* AtaMind colors based on family image palette */
-  --neutral: hsl(40, 25%, 96%);
+  /* AtaMind colorful child-friendly palette */
+  --neutral: hsl(210, 17%, 98%);
   --text-dark: hsl(216, 13%, 18%);
-  --warm-beige: hsl(40, 30%, 88%);
-  --soft-blue: hsl(205, 40%, 85%);
-  --gentle-gray: hsl(210, 15%, 82%);
-  --cozy-brown: hsl(25, 20%, 70%);
-  --natural-green: hsl(110, 25%, 75%);
-  --cream-white: hsl(45, 35%, 95%);
+  --bright-pink: hsl(320, 85%, 70%);
+  --vibrant-purple: hsl(280, 80%, 75%);
+  --electric-blue: hsl(220, 90%, 70%);
+  --sunny-yellow: hsl(50, 95%, 75%);
+  --lime-green: hsl(120, 70%, 70%);
+  --coral-orange: hsl(15, 90%, 70%);
 }
 
 .dark {
@@ -69,39 +69,69 @@
 
 @layer components {
   .gradient-primary {
-    background: linear-gradient(135deg, hsl(205, 40%, 85%) 0%, hsl(205, 40%, 75%) 100%);
+    background: linear-gradient(135deg, hsl(320, 85%, 70%) 0%, hsl(280, 80%, 75%) 100%);
   }
   
   .gradient-secondary {
-    background: linear-gradient(135deg, hsl(40, 30%, 88%) 0%, hsl(40, 30%, 78%) 100%);
+    background: linear-gradient(135deg, hsl(220, 90%, 70%) 0%, hsl(200, 85%, 75%) 100%);
   }
   
   .gradient-accent {
-    background: linear-gradient(135deg, hsl(25, 20%, 70%) 0%, hsl(25, 20%, 60%) 100%);
+    background: linear-gradient(135deg, hsl(50, 95%, 75%) 0%, hsl(15, 90%, 70%) 100%);
   }
   
   .child-friendly-button {
     @apply transform transition-all duration-200 hover:scale-105 active:scale-95;
-    background: linear-gradient(135deg, hsl(205, 40%, 85%) 0%, hsl(40, 30%, 88%) 50%, hsl(25, 20%, 70%) 100%);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, hsl(320, 85%, 70%) 0%, hsl(280, 80%, 75%) 30%, hsl(220, 90%, 70%) 60%, hsl(120, 70%, 70%) 100%);
+    box-shadow: 0 6px 20px rgba(255, 105, 180, 0.3);
   }
   
   .child-card {
-    background: linear-gradient(145deg, hsl(45, 35%, 95%) 0%, hsl(40, 25%, 96%) 100%);
-    border: 2px solid hsl(210, 15%, 82%);
+    background: linear-gradient(145deg, hsl(340, 100%, 97%) 0%, hsl(280, 100%, 96%) 50%, hsl(220, 100%, 97%) 100%);
+    border: 2px solid hsl(280, 60%, 85%);
   }
   
-  .family-warm-bg {
-    background: linear-gradient(135deg, hsl(40, 25%, 96%) 0%, hsl(205, 40%, 95%) 50%, hsl(25, 20%, 92%) 100%);
+  .rainbow-bg {
+    background: linear-gradient(45deg, 
+      hsl(0, 100%, 80%) 0%, 
+      hsl(30, 100%, 80%) 16.66%, 
+      hsl(60, 100%, 80%) 33.33%, 
+      hsl(120, 100%, 80%) 50%, 
+      hsl(240, 100%, 80%) 66.66%, 
+      hsl(300, 100%, 80%) 83.33%, 
+      hsl(360, 100%, 80%) 100%);
   }
   
   .floating-pattern {
     animation: float 6s ease-in-out infinite;
   }
   
+  .colorful-pulse {
+    animation: colorful-pulse 3s ease-in-out infinite;
+  }
+  
   @keyframes float {
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-20px); }
+  }
+  
+  @keyframes colorful-pulse {
+    0%, 100% { 
+      background: hsl(320, 85%, 70%);
+      transform: scale(1);
+    }
+    25% { 
+      background: hsl(220, 90%, 70%);
+      transform: scale(1.1);
+    }
+    50% { 
+      background: hsl(120, 70%, 70%);
+      transform: scale(1.2);
+    }
+    75% { 
+      background: hsl(50, 95%, 75%);
+      transform: scale(1.1);
+    }
   }
   
   .child-friendly-button {

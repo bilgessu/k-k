@@ -3,11 +3,13 @@ import { Heart, Mic, Brain } from "lucide-react";
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-gray-50 to-orange-50 text-gray-800 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-pink-400 via-purple-500 to-blue-500 text-white relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-10 left-10 w-20 h-20 bg-orange-100 rounded-full floating-pattern"></div>
-        <div className="absolute top-32 right-16 w-12 h-12 bg-blue-100 rounded-full floating-pattern" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-10 left-10 w-20 h-20 rounded-full colorful-pulse"></div>
+        <div className="absolute top-32 right-16 w-12 h-12 rounded-full colorful-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-64 left-32 w-8 h-8 rounded-full colorful-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute bottom-32 right-32 w-16 h-16 rounded-full colorful-pulse" style={{ animationDelay: '3s' }}></div>
         <div className="absolute bottom-20 left-16 w-16 h-16 bg-accent rounded-full floating-pattern" style={{ animationDelay: '2s' }}></div>
       </div>
       
