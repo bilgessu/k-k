@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Heart, Mic, Brain } from "lucide-react";
+import waveImage from "@assets/premium_photo-1682095261811-676fc6d0ad80_1754493978735.avif";
 
 export default function Landing() {
   return (
@@ -23,13 +24,19 @@ export default function Landing() {
           <p className="text-white/80 text-lg">AI Destekli Çocuk Eğitim Asistanı</p>
         </div>
 
-        {/* Hero Image */}
-        <div className="mb-8">
+        {/* Hero Image with Wave Background */}
+        <div className="mb-8 relative">
           <img 
-            src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&h=400" 
-            alt="Happy family with children learning together" 
+            src={waveImage}
+            alt="Beautiful ocean wave representing learning flow" 
             className="rounded-2xl shadow-2xl w-full h-64 object-cover"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent rounded-2xl flex items-end">
+            <div className="p-6 text-white">
+              <h3 className="text-xl font-bold mb-1">Öğrenme Akışınızda</h3>
+              <p className="text-white/80">Her hikaye, çocuğunuzun gelişim dalgasıyla uyumlu</p>
+            </div>
+          </div>
         </div>
 
         {/* Feature Highlights */}

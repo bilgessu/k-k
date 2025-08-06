@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import ChildProfileForm from "@/components/ChildProfileForm";
 import StoryGenerationDialog from "@/components/StoryGenerationDialog";
+import waveImage from "@assets/premium_photo-1682095261811-676fc6d0ad80_1754493978735.avif";
 
 export default function HomePage() {
   const { user, isLoading, isAuthenticated } = useAuth();
@@ -213,9 +214,17 @@ export default function HomePage() {
               </CardContent>
             </Card>
 
-            {/* Voice Analytics */}
-            <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
-              <CardContent className="p-4">
+            {/* Voice Analytics with Wave Theme */}
+            <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
+              <div 
+                className="absolute inset-0 opacity-10"
+                style={{
+                  backgroundImage: `url(${waveImage})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center'
+                }}
+              ></div>
+              <CardContent className="p-4 relative z-10">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-full flex items-center justify-center mr-3">
@@ -223,7 +232,7 @@ export default function HomePage() {
                     </div>
                     <div>
                       <h4 className="font-medium text-textDark">Ses Analizi</h4>
-                      <p className="text-xs text-gray-600">Duygusal ton ve etkililik</p>
+                      <p className="text-xs text-gray-600">Duygusal dalga akışı</p>
                     </div>
                   </div>
                   <Link href="/voice-analytics">
