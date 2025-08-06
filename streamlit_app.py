@@ -337,8 +337,23 @@ def show_story_generation():
                     Hikayen sadece hikaye metni olsun, başka açıklama ekleme.
                     """
                     
-                    response = gemini_model.generate_content(prompt)
-                    story = response.text
+                    # Initialize Gemini model
+                    gemini_model, _ = init_ai_clients()
+                    if gemini_model:
+                        response = gemini_model.generate_content(prompt)
+                        story = response.text
+                    else:
+                        story = f"""
+                        Bir varmış bir yokmuş, {child_name} adında çok sevimli bir çocuk varmış. 
+                        Bu çocuk her gün ailesinin değerlerini öğrenmeyi çok seviyormuş.
+                        
+                        Anne ve babasından öğrendiği {', '.join(values)} değerleriyle büyüyen {child_name}, 
+                        her gün biraz daha büyüyor ve öğreniyormuş.
+                        
+                        Anne ve babasının mesajı şöyleymiş: "{parent_message}"
+                        
+                        Ve böylece {child_name} mutlu mesut yaşarmış.
+                        """
                     
                     progress_bar.empty()
                     status_text.empty()
