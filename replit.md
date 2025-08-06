@@ -10,7 +10,7 @@ Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
-### Frontend Architecture
+### Frontend Architecture (Original - Now Being Rewritten)
 - **Framework**: React 18 with TypeScript and Vite for fast development and building
 - **Routing**: Wouter for lightweight client-side routing
 - **State Management**: TanStack React Query for server state management and caching
@@ -18,12 +18,13 @@ Preferred communication style: Simple, everyday language.
 - **Styling**: Tailwind CSS with CSS variables for theming and responsive design
 - **Form Handling**: React Hook Form with Zod validation for type-safe form management
 
-### Backend Architecture
-- **Runtime**: Node.js with Express.js framework
-- **Language**: TypeScript with ES modules for type safety and modern JavaScript features
-- **API Design**: RESTful APIs with structured error handling and logging middleware
-- **File Uploads**: Multer middleware for handling audio file uploads
-- **Session Management**: Express sessions with PostgreSQL storage using connect-pg-simple
+### Backend Architecture (NEW - Python Rewrite)
+- **Framework**: FastAPI with Python 3.11 for high-performance async API development
+- **Language**: Python with type hints and Pydantic models for data validation
+- **API Design**: RESTful APIs with automatic OpenAPI documentation and validation
+- **File Uploads**: FastAPI native multipart form handling for audio file uploads
+- **Session Management**: JWT-based authentication with secure token handling
+- **Database ORM**: SQLAlchemy with PostgreSQL for robust data persistence
 
 ### Data Storage Solutions
 - **Database**: PostgreSQL with Drizzle ORM for type-safe database operations

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AtaMind - AI Destekli Türk Çocuk Eğitimi</title>
+    <meta name="description" content="AtaMind ile çocuklarınıza Türk kültürel değerlerini AI destekli kişiselleştirilmiş hikayelerle öğretin.">
+    
+    <!-- Vibrant, colorful styling -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #fecca7);
+            background-size: 400% 400%;
+            animation: gradientShift 8s ease infinite;
+            min-height: 100vh;
+            color: white;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .logo {
+            font-size: 4rem;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff9a9e, #fecfef, #fecfef);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .tagline {
+            font-size: 1.5rem;
+            margin: 1rem 0;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+        
+        .feature-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+        
+        .feature-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .cta-section {
+            text-align: center;
+            margin: 4rem 0;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3); }
+            to { box-shadow: 0 10px 40px rgba(78, 205, 196, 0.4); }
+        }
+        
+        .cta-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .family-section {
+            text-align: center;
+            margin: 4rem 0;
+        }
+        
+        .family-image {
+            max-width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .loading-message {
+            text-align: center;
+            font-size: 1.2rem;
+            margin: 2rem 0;
+            color: white;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        
+        @media (max-width: 768px) {
+            .logo { font-size: 2.5rem; }
+            .tagline { font-size: 1.2rem; }
+            .main-content { grid-template-columns: 1fr; }
+            .container { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="logo">🌈 AtaMind 🌈</h1>
+            <p class="tagline">AI Destekli Türk Çocuk Eğitimi Platformu</p>
+            <p style="font-size: 1.1rem; margin-top: 1rem; opacity: 0.9;">
+                Çocuklarınıza kültürel değerleri renkli hikayelerle öğretin!
+            </p>
+        </header>
+
+        <div class="family-section">
+            <img 
+                src="https://images.unsplash.com/photo-1600298881974-6be191ceeda1?w=800&h=300&fit=crop&crop=center" 
+                alt="Mutlu aile birlikte öğreniyor" 
+                class="family-image"
+            >
+        </div>
+
+        <div class="main-content">
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <h3 class="feature-title">Renkli Hikayeler</h3>
+                <p class="feature-description">
+                    AI ile oluşturulan özelleştirilmiş Türk kültürel hikayeleri ile çocuklarınız eğlenirken öğreniyor.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🎤</div>
+                <h3 class="feature-title">Sesli Etkileşim</h3>
+                <p class="feature-description">
+                    Kendi sesinizle mesajlar kaydederek çocuğunuza özel değerler ve öğütler iletebilirsiniz.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🧠</div>
+                <h3 class="feature-title">Akıllı Analiz</h3>
+                <p class="feature-description">
+                    Çok-ajanlı AI sistemi ile çocuğunuzun gelişimini takip eder ve kişiselleştirilmiş öneriler sunar.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🇹🇷</div>
+                <h3 class="feature-title">Türk Değerleri</h3>
+                <p class="feature-description">
+                    Saygı, sevgi, sorumluluk gibi Türk kültürel değerlerini modern yaklaşımlarla aktarır.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">👨‍👩‍👧‍👦</div>
+                <h3 class="feature-title">Aile Bağları</h3>
+                <p class="feature-description">
+                    Aile içi iletişimi güçlendiren aktiviteler ve önerilerle bağlarınızı pekiştirin.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🚀</div>
+                <h3 class="feature-title">Gelişim Takibi</h3>
+                <p class="feature-description">
+                    Çocuğunuzun öğrenme ilerlemesini takip edin ve gelişim alanlarını keşfedin.
+                </p>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <div class="loading-message">
+                🌟 Python FastAPI Backend Hazırlanıyor... 🌟
+            </div>
+            <button class="cta-button" onclick="startApp()">
+                🎯 AtaMind'ı Başlat 🎯
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function startApp() {
+            alert('🌈 AtaMind Python uygulaması yakında hazır olacak! 🌈\n\n✨ Özellikler:\n• Renkli AI hikayeleri\n• Sesli etkileşim\n• Türk kültürel değerleri\n• Çok-ajanlı AI sistemi');
+        }
+        
+        // Add some interactive sparkle effects
+        setInterval(() => {
+            const sparkle = document.createElement('div');
+            sparkle.innerHTML = '✨';
+            sparkle.style.position = 'fixed';
+            sparkle.style.left = Math.random() * window.innerWidth + 'px';
+            sparkle.style.top = Math.random() * window.innerHeight + 'px';
+            sparkle.style.fontSize = '1rem';
+            sparkle.style.pointerEvents = 'none';
+            sparkle.style.animation = 'sparkle 2s ease-out forwards';
+            sparkle.style.zIndex = '1000';
+            
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes sparkle {
+                    0% { opacity: 1; transform: scale(0) rotate(0deg); }
+                    50% { opacity: 1; transform: scale(1) rotate(180deg); }
+                    100% { opacity: 0; transform: scale(0) rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            document.body.appendChild(sparkle);
+            
+            setTimeout(() => {
+                sparkle.remove();
+                style.remove();
+            }, 2000);
+        }, 3000);
+    </script>
+</body>
+</html>
