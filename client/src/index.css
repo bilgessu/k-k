@@ -3,13 +3,13 @@
 @tailwind utilities;
 
 :root {
-  --background: hsl(0, 79%, 72%);
+  --background: hsl(120, 93%, 79%);
   --foreground: hsl(216, 10%, 17%);
   --muted: hsl(220, 14%, 96%);
   --muted-foreground: hsl(220, 9%, 46%);
-  --popover: hsl(0, 60%, 85%);
+  --popover: hsl(120, 60%, 85%);
   --popover-foreground: hsl(216, 10%, 17%);
-  --card: hsl(0, 60%, 85%);
+  --card: hsl(120, 60%, 85%);
   --card-foreground: hsl(216, 10%, 17%);
   --border: hsl(220, 13%, 91%);
   --input: hsl(220, 13%, 91%);

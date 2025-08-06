@@ -2,7 +2,7 @@
 
 ## Overview
 
-AtaMind is an AI-powered Turkish children's education platform that helps parents create personalized stories and lullabies to teach cultural values to their children. The application combines voice recording capabilities, AI story generation, and audio playback to deliver culturally-rich educational content. Parents can record their own value-based messages, which are then transformed into age-appropriate stories featuring Turkish cultural elements and traditional values.
+KökÖğreti is an AI-powered Turkish children's education platform that helps parents create personalized stories and lullabies to teach cultural values to their children. The application combines voice recording capabilities, AI story generation, and audio playback to deliver culturally-rich educational content. Parents can record their own value-based messages, which are then transformed into age-appropriate stories featuring Turkish cultural elements and traditional values.
 
 ### Recent Progress (August 6, 2025)
 - ✅ Statistics page fully implemented with comprehensive usage analytics and child progress tracking

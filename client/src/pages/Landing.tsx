@@ -4,14 +4,16 @@ import waveImage from "@assets/premium_photo-1682095261811-676fc6d0ad80_17544939
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-300 via-red-400 to-orange-500 text-white relative overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-10 left-10 w-20 h-20 rounded-full colorful-pulse"></div>
-        <div className="absolute top-32 right-16 w-12 h-12 rounded-full colorful-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-64 left-32 w-8 h-8 rounded-full colorful-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute bottom-32 right-32 w-16 h-16 rounded-full colorful-pulse" style={{ animationDelay: '3s' }}></div>
-        <div className="absolute bottom-20 left-16 w-16 h-16 bg-accent rounded-full floating-pattern" style={{ animationDelay: '2s' }}></div>
+    <div className="min-h-screen bg-gradient-to-br from-green-300 via-lime-400 to-emerald-500 text-white relative overflow-hidden">
+      {/* Background Pattern - More Prominent Bubbles */}
+      <div className="absolute inset-0 opacity-25">
+        <div className="absolute top-10 left-10 w-24 h-24 rounded-full colorful-pulse"></div>
+        <div className="absolute top-32 right-16 w-16 h-16 rounded-full colorful-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-64 left-32 w-12 h-12 rounded-full colorful-pulse" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute bottom-32 right-32 w-20 h-20 rounded-full colorful-pulse" style={{ animationDelay: '3s' }}></div>
+        <div className="absolute bottom-20 left-16 w-18 h-18 bg-accent rounded-full floating-pattern" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute top-1/3 right-1/4 w-14 h-14 rounded-full colorful-pulse" style={{ animationDelay: '1.8s' }}></div>
+        <div className="absolute bottom-1/3 left-1/3 w-10 h-10 rounded-full colorful-pulse" style={{ animationDelay: '2.2s' }}></div>
       </div>
       
       <div className="relative z-10 px-6 pt-12 pb-8">
@@ -20,7 +22,7 @@ export default function Landing() {
           <div className="w-24 h-24 bg-white rounded-3xl mx-auto mb-4 flex items-center justify-center">
             <Brain className="w-12 h-12 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold mb-2">AtaMind</h1>
+          <h1 className="text-3xl font-bold mb-2">KökÖğreti</h1>
           <p className="text-white/80 text-lg">AI Destekli Çocuk Eğitim Asistanı</p>
         </div>
 
