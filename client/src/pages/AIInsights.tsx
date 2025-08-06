@@ -1,5 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
