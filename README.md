@@ -4,6 +4,8 @@
 
 An intelligent voice education assistant that helps Turkish parents transmit cultural values and traditions to children through personalized, interactive storytelling powered by advanced multi-agent AI architecture.
 
+> 💻 **Running Locally?** See [QUICK_START_LOCAL.md](./QUICK_START_LOCAL.md) for 5-minute setup or [LOCAL_SETUP.md](./LOCAL_SETUP.md) for detailed instructions.
+
 ## 🌟 Overview
 
 KökÖğreti combines cutting-edge AI technology with deep Turkish cultural understanding to create personalized educational experiences for children aged 3-12. Parents can record their value-based messages, which are transformed into culturally-rich, age-appropriate stories that teach traditional values, etiquette, and cultural knowledge.

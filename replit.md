@@ -4,6 +4,14 @@
 
 KökÖğreti is an AI-powered Turkish children's education platform that helps parents create personalized stories and lullabies to teach cultural values to their children. The application combines voice recording capabilities, AI story generation, and audio playback to deliver culturally-rich educational content. Parents can record their own value-based messages, which are then transformed into age-appropriate stories featuring Turkish cultural elements and traditional values.
 
+### Local Development Support
+
+The application can be run locally on your computer for development purposes. See `LOCAL_SETUP.md` for detailed setup instructions. Key features:
+- Simple authentication system for local development (`server/localAuth.ts`)
+- PostgreSQL database support (local or cloud)
+- Full feature parity with Replit deployment
+- Easy switching between local and Replit authentication
+
 ### Recent Progress (August 6, 2025)
 - ✅ Complete project rebranding from AtaMind to KökÖğreti across all files and documentation
 - ✅ Updated README.md with current features, k-k repository references, and accurate technical details
