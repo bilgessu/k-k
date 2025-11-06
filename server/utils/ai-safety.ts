@@ -3,6 +3,8 @@
  * Implements security guardrails and reliability patterns for AI agent calls
  */
 
+import { observability, type RequestMetrics } from './observability';
+
 /**
  * Sanitize user input before injecting into AI prompts
  * Prevents prompt injection attacks and ensures safe prompting
@@ -135,3 +137,36 @@ export const openaiCircuitBreaker = new CircuitBreaker(5, 60000, 'OpenAI API');
  */
 export const AI_TIMEOUT_MS = 7000; // 7 seconds (under p95 target)
 export const MAX_PROMPT_LENGTH = 500;
+
+/**
+ * Tracked AI operation with observability built-in
+ * Automatically tracks latency, errors, and tokens
+ */
+export async function trackedAIOperation<T>(
+  operation: string,
+  agentName: string,
+  fn: (requestId: string) => Promise<T>,
+  estimateTokens?: (result: T) => number
+): Promise<T> {
+  const metric = observability.startOperation(operation, agentName);
+  
+  try {
+    const result = await fn(metric.requestId);
+    const tokens = estimateTokens ? estimateTokens(result) : undefined;
+    observability.endOperation(metric, 'success', { tokensUsed: tokens });
+    return result;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const lowerMessage = errorMessage.toLowerCase();
+    const status = (lowerMessage.includes('timeout') || lowerMessage.includes('timed out')) ? 'timeout' :
+                   (lowerMessage.includes('circuit') || lowerMessage.includes('breaker')) ? 'circuit_open' : 'error';
+    
+    observability.endOperation(metric, status, { errorMessage });
+    throw error;
+  }
+}
+
+/**
+ * Export observability service for direct access
+ */
+export { observability };

@@ -12,17 +12,24 @@ The application can be run locally on your computer for development purposes. Se
 - Full feature parity with Replit deployment
 - Easy switching between local and Replit authentication
 
-### Recent Progress (August 6, 2025)
-- ✅ Complete project rebranding from AtaMind to KökÖğreti across all files and documentation
-- ✅ Updated README.md with current features, k-k repository references, and accurate technical details
-- ✅ Applied pale green theme (#98FB98) with enhanced visibility and modern design
-- ✅ Statistics page fully implemented with comprehensive usage analytics and child progress tracking
-- ✅ AI Insights page implemented with psychological profiling, safety metrics, voice analysis, and recommendations
-- ✅ Authentication system working with Replit OpenID Connect integration
-- ✅ Multi-agent AI system fully operational with real-time child profile processing
-- ✅ Streamlit version deployed live on port 8501 with full Turkish interface and AI features
-- ✅ README.md updated with Streamlit deployment instructions and k-k_25 repository references
-- ✅ Created comprehensive Streamlit application with all original features ported to Python
+### Recent Progress (November 6, 2025)
+- ✅ **Phase 1: Security Hardening** - Comprehensive architecture audit and critical risk resolution
+  - R1: Prompt sanitization preventing injection attacks
+  - R2: 7s timeout enforcement on all AI calls  
+  - R3: Circuit breaker pattern preventing cascading failures
+  - R4: Memory limits with LRU eviction (100/child, 1000 global)
+  - Architect-approved with 0 TypeScript errors
+- ✅ **Phase 2: Observability & Instrumentation** - Production-grade monitoring deployed
+  - Request ID tracking for distributed tracing
+  - Latency metrics (P50, P95, P99) per operation/agent
+  - Token usage monitoring for cost optimization
+  - Error rate tracking with configurable time windows
+  - System health dashboard with circuit breaker status
+  - 5 new API endpoints for real-time metrics
+- ✅ **Codebase Cleanup** - Archived duplicate Python/FastAPI stack to `_archive/`
+  - Single production stack (TypeScript) for easier maintenance
+  - Streamlit app retained for demos and prototyping
+  - Eliminated schema drift risk and maintenance burden
 
 ## User Preferences
 
@@ -67,6 +74,19 @@ Preferred communication style: Simple, everyday language.
   - **GuardianAgent**: Multi-layered content safety validation and cultural appropriateness verification
   - **VoiceAgent**: Enhanced audio processing with personality-based voice optimization
 - **Memory & Personalization**: ChildPersonalizationMemory system for learning child preferences and behavioral patterns
+  - LRU eviction policy: 100 interactions per child, 1000 global limit
+  - Prevents unbounded memory growth and OOM crashes
+- **Security & Reliability Layer** (Phase 1 - November 2025):
+  - **Prompt Sanitization**: Input validation preventing injection attacks
+  - **Timeout Enforcement**: 7s timeout on all AI calls (14s for audio)
+  - **Circuit Breakers**: Automatic failure detection and graceful degradation
+  - **Error Handling**: Comprehensive error categorization and logging
+- **Observability & Monitoring** (Phase 2 - November 2025):
+  - **Request Tracing**: UUID-based request IDs for distributed debugging
+  - **Latency Tracking**: P50/P95/P99 metrics per operation and agent
+  - **Token Monitoring**: Real-time cost tracking and optimization insights
+  - **Error Analytics**: Configurable time-window error rate tracking
+  - **Health Dashboard**: Circuit breaker status, success rates, agent performance
 - **Advanced Features**:
   - Real-time emotion detection and cultural value extraction from parent voice recordings
   - Age-specific content adaptation with psychological development considerations

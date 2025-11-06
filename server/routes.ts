@@ -5,6 +5,7 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { generateTurkishCulturalStory, transcribeAndAnalyzeVoice, generateLullaby, generateStoryImage, analyzeCulturalContent } from "./gemini";
 import { AgentOrchestrator, childMemory } from "./ai-agents";
 import { generateTextToSpeech } from "./openai";
+import { observability, geminiCircuitBreaker, openaiCircuitBreaker } from "./utils/ai-safety";
 import multer from "multer";
 import path from "path";
 import fs from "fs/promises";
@@ -24,6 +25,90 @@ export async function registerRoutes(app: express.Express): Promise<Server> {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
       res.json(user);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Observability & Metrics routes
+  app.get('/api/metrics/health', isAuthenticated, async (req: any, res) => {
+    try {
+      const health = observability.getSystemHealth();
+      const geminiStatus = geminiCircuitBreaker.getStatus();
+      const openaiStatus = openaiCircuitBreaker.getStatus();
+      
+      res.json({
+        ...health,
+        circuitBreakers: {
+          gemini: geminiStatus,
+          openai: openaiStatus
+        },
+        timestamp: new Date().toISOString()
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get('/api/metrics/latency', isAuthenticated, async (req: any, res) => {
+    try {
+      const { operation, agent } = req.query;
+      const stats = observability.getLatencyStats(
+        operation as string | undefined,
+        agent as string | undefined
+      );
+      res.json(stats || { message: 'No data available' });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get('/api/metrics/errors', isAuthenticated, async (req: any, res) => {
+    try {
+      const { operation, agent, window } = req.query;
+      const windowMs = window ? parseInt(window as string) : 300000;
+      
+      const errorRate = observability.getErrorRate(
+        operation as string | undefined,
+        agent as string | undefined,
+        windowMs
+      );
+      
+      res.json({ 
+        errorRate,
+        windowMs,
+        operation: operation || 'all',
+        agent: agent || 'all'
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get('/api/metrics/tokens', isAuthenticated, async (req: any, res) => {
+    try {
+      const { operation, agent } = req.query;
+      const totalTokens = observability.getTotalTokensUsed(
+        operation as string | undefined,
+        agent as string | undefined
+      );
+      
+      res.json({ 
+        totalTokens,
+        operation: operation || 'all',
+        agent: agent || 'all'
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get('/api/metrics/recent', isAuthenticated, async (req: any, res) => {
+    try {
+      const { limit } = req.query;
+      const limitNum = limit ? parseInt(limit as string) : 50;
+      const metrics = observability.getRecentMetrics(limitNum);
+      res.json(metrics);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
