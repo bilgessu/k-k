@@ -4,7 +4,7 @@
  */
 
 import OpenAI from "openai";
-import { withTimeout, AI_TIMEOUT_MS } from "./ai-safety";
+import { withTimeout, AI_TIMEOUT_MS, openaiCircuitBreaker } from "./ai-safety";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || "",
@@ -20,14 +20,17 @@ export async function generateEmbedding(text: string): Promise<number[]> {
   }
 
   try {
-    const response = await withTimeout(
-      openai.embeddings.create({
-        model: "text-embedding-3-small",
-        input: text.substring(0, 8000), // OpenAI limit
-        encoding_format: "float",
-      }),
-      AI_TIMEOUT_MS,
-      'Embedding generation timeout'
+    // Wrap with circuit breaker to prevent cascading failures
+    const response = await openaiCircuitBreaker.execute(() =>
+      withTimeout(
+        openai.embeddings.create({
+          model: "text-embedding-3-small",
+          input: text.substring(0, 8000), // OpenAI limit
+          encoding_format: "float",
+        }),
+        AI_TIMEOUT_MS,
+        'Embedding generation timeout'
+      )
     );
 
     return response.data[0].embedding;
@@ -54,14 +57,17 @@ export async function generateEmbeddingsBatch(texts: string[]): Promise<number[]
   }
 
   try {
-    const response = await withTimeout(
-      openai.embeddings.create({
-        model: "text-embedding-3-small",
-        input: validTexts.map(t => t.substring(0, 8000)),
-        encoding_format: "float",
-      }),
-      AI_TIMEOUT_MS * 2, // 14s for batch operations
-      'Batch embedding generation timeout'
+    // Wrap with circuit breaker to prevent cascading failures
+    const response = await openaiCircuitBreaker.execute(() =>
+      withTimeout(
+        openai.embeddings.create({
+          model: "text-embedding-3-small",
+          input: validTexts.map(t => t.substring(0, 8000)),
+          encoding_format: "float",
+        }),
+        AI_TIMEOUT_MS * 2, // 14s for batch operations
+        'Batch embedding generation timeout'
+      )
     );
 
     return response.data.map(item => item.embedding);
