@@ -5,21 +5,27 @@ import {
   geminiCircuitBreaker,
   AI_TIMEOUT_MS 
 } from "../utils/ai-safety";
+import { VectorStore, type VectorDocument } from "../utils/vector-store";
+import { generateEmbedding, generateEmbeddingsBatch } from "../utils/embeddings";
+import { randomUUID } from "crypto";
 
 // Initialize Gemini 2.5 Pro for agent orchestration
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 
-// Advanced memory store for child personalization using simple storage
+// Advanced memory store for child personalization with vector-based semantic search
 export class ChildPersonalizationMemory {
   private childProfiles: Map<string, any> = new Map();
   private interactions: Map<string, any[]> = new Map();
+  private vectorStore: VectorStore;
   
   // Memory limits to prevent OOM crashes
   private readonly MAX_CHILDREN = 1000;
-  private readonly MAX_INTERACTIONS_PER_CHILD = 50;
+  private readonly MAX_INTERACTIONS_PER_CHILD = 100;
 
   constructor() {
-    // Initialize with simple in-memory storage - in production use vector DB
+    // Initialize with vector store for semantic search
+    this.vectorStore = new VectorStore(5000); // 5000 interaction embeddings
+    console.log('ChildPersonalizationMemory: Initialized with vector store');
   }
 
   async addChildInteraction(childId: string, interaction: {
@@ -53,6 +59,31 @@ export class ChildPersonalizationMemory {
         this.childProfiles.delete(oldestChildId);
         console.log(`Memory: Evicted oldest child profile (${oldestChildId}) - LRU limit reached`);
       }
+    }
+
+    // Add to vector store for semantic search
+    try {
+      const interactionText = `Story: ${interaction.story}\nReaction: ${interaction.reaction}\nPreferences: ${interaction.preferences.join(', ')}`;
+      const embedding = await generateEmbedding(interactionText);
+      
+      const vectorDoc: VectorDocument = {
+        id: randomUUID(),
+        text: interactionText,
+        embedding,
+        metadata: {
+          childId,
+          timestamp: interaction.timestamp.getTime(),
+          preferences: interaction.preferences,
+          reaction: interaction.reaction
+        },
+        timestamp: interaction.timestamp.getTime()
+      };
+
+      await this.vectorStore.add(vectorDoc);
+      console.log(`Memory: Added interaction to vector store for child ${childId}`);
+    } catch (error) {
+      console.error('Failed to add interaction to vector store:', error);
+      // Non-blocking - continue even if vector indexing fails
     }
   }
 
@@ -90,6 +121,72 @@ export class ChildPersonalizationMemory {
     });
 
     return Array.from(traits);
+  }
+
+  /**
+   * Semantic search: Find similar interactions based on content similarity
+   */
+  async findSimilarInteractions(
+    query: string,
+    childId?: string,
+    topK: number = 5
+  ): Promise<Array<{
+    text: string;
+    similarity: number;
+    metadata: Record<string, any>;
+  }>> {
+    try {
+      const queryEmbedding = await generateEmbedding(query);
+      const results = await this.vectorStore.search(queryEmbedding, topK, 0.6);
+
+      // Filter by childId if provided
+      let filteredResults = results;
+      if (childId) {
+        filteredResults = results.filter(r => r.document.metadata.childId === childId);
+      }
+
+      return filteredResults.map(r => ({
+        text: r.document.text,
+        similarity: r.similarity,
+        metadata: r.document.metadata
+      }));
+    } catch (error) {
+      console.error('Semantic search error:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Find stories similar to given preferences
+   */
+  async findStoriesByPreferences(
+    preferences: string[],
+    childId?: string,
+    topK: number = 3
+  ): Promise<Array<{
+    story: string;
+    reaction: string;
+    similarity: number;
+  }>> {
+    const preferenceQuery = preferences.join(' ');
+    const similar = await this.findSimilarInteractions(preferenceQuery, childId, topK);
+
+    return similar.map(s => ({
+      story: s.metadata.story || s.text,
+      reaction: s.metadata.reaction || '',
+      similarity: s.similarity
+    }));
+  }
+
+  /**
+   * Get vector store statistics
+   */
+  getVectorStats(): {
+    totalDocuments: number;
+    maxCapacity: number;
+    utilizationPercent: number;
+  } {
+    return this.vectorStore.getStats();
   }
 }
 
