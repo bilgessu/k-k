@@ -6,6 +6,7 @@ import { generateTurkishCulturalStory, transcribeAndAnalyzeVoice, generateLullab
 import { AgentOrchestrator, childMemory } from "./ai-agents";
 import { generateTextToSpeech } from "./openai";
 import { observability, geminiCircuitBreaker, openaiCircuitBreaker } from "./utils/ai-safety";
+import { storyMatcher } from "./utils/story-matching";
 import multer from "multer";
 import path from "path";
 import fs from "fs/promises";
@@ -419,6 +420,190 @@ export async function registerRoutes(app: express.Express): Promise<Server> {
       const lullabies = await storage.getLullabies(childId as string);
       res.json(lullabies);
     } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Vector Search & Story Matching Routes
+  app.post('/api/vector/search/interactions', isAuthenticated, async (req: any, res) => {
+    try {
+      const { query, childId, topK } = req.body;
+      
+      if (!query) {
+        return res.status(400).json({ message: 'Query is required' });
+      }
+
+      const results = await childMemory.findSimilarInteractions(
+        query,
+        childId,
+        topK || 5
+      );
+
+      res.json({
+        query,
+        results,
+        count: results.length
+      });
+    } catch (error: any) {
+      console.error('Semantic search error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post('/api/vector/search/preferences', isAuthenticated, async (req: any, res) => {
+    try {
+      const { preferences, childId, topK } = req.body;
+      
+      if (!preferences || !Array.isArray(preferences)) {
+        return res.status(400).json({ message: 'Preferences array is required' });
+      }
+
+      const results = await childMemory.findStoriesByPreferences(
+        preferences,
+        childId,
+        topK || 3
+      );
+
+      res.json({
+        preferences,
+        results,
+        count: results.length
+      });
+    } catch (error: any) {
+      console.error('Preference search error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.get('/api/vector/stats', isAuthenticated, async (req: any, res) => {
+    try {
+      const memoryStats = childMemory.getVectorStats();
+      const storyStats = storyMatcher.getStats();
+
+      res.json({
+        memory: memoryStats,
+        stories: storyStats,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post('/api/stories/search', isAuthenticated, async (req: any, res) => {
+    try {
+      const { query, topK, minSimilarity } = req.body;
+      
+      if (!query) {
+        return res.status(400).json({ message: 'Search query is required' });
+      }
+
+      const results = await storyMatcher.searchStoriesByQuery(
+        query,
+        topK || 5,
+        minSimilarity || 0.6
+      );
+
+      res.json({
+        query,
+        results,
+        count: results.length
+      });
+    } catch (error: any) {
+      console.error('Story search error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post('/api/stories/similar/:storyId', isAuthenticated, async (req: any, res) => {
+    try {
+      const { storyId } = req.params;
+      const { topK, minSimilarity } = req.body;
+
+      const results = await storyMatcher.findSimilarStories(
+        storyId,
+        topK || 5,
+        minSimilarity || 0.7
+      );
+
+      res.json({
+        storyId,
+        results,
+        count: results.length
+      });
+    } catch (error: any) {
+      console.error('Similar stories error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post('/api/stories/recommendations', isAuthenticated, async (req: any, res) => {
+    try {
+      const { childAge, preferences, previousStories, topK } = req.body;
+      
+      if (!childAge || !preferences || !Array.isArray(preferences)) {
+        return res.status(400).json({ 
+          message: 'childAge and preferences array are required' 
+        });
+      }
+
+      const recommendations = await storyMatcher.getPersonalizedRecommendations({
+        childAge,
+        preferences,
+        previousStories: previousStories || [],
+        topK: topK || 5
+      });
+
+      res.json({
+        childAge,
+        preferences,
+        recommendations,
+        count: recommendations.length
+      });
+    } catch (error: any) {
+      console.error('Recommendations error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post('/api/stories/by-theme', isAuthenticated, async (req: any, res) => {
+    try {
+      const { theme, topK } = req.body;
+      
+      if (!theme) {
+        return res.status(400).json({ message: 'Theme is required' });
+      }
+
+      const results = await storyMatcher.findStoriesByTheme(theme, topK || 5);
+
+      res.json({
+        theme,
+        results,
+        count: results.length
+      });
+    } catch (error: any) {
+      console.error('Theme search error:', error);
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  app.post('/api/stories/by-values', isAuthenticated, async (req: any, res) => {
+    try {
+      const { values, topK } = req.body;
+      
+      if (!values || !Array.isArray(values)) {
+        return res.status(400).json({ message: 'Values array is required' });
+      }
+
+      const results = await storyMatcher.findStoriesByValues(values, topK || 5);
+
+      res.json({
+        values,
+        results,
+        count: results.length
+      });
+    } catch (error: any) {
+      console.error('Values search error:', error);
       res.status(500).json({ message: error.message });
     }
   });
