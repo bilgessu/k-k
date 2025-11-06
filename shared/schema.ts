@@ -66,8 +66,11 @@ export const stories = pgTable("stories", {
   title: varchar("title").notNull(),
   content: text("content").notNull(),
   audioUrl: varchar("audio_url"),
+  imageUrl: varchar("image_url"),
   duration: integer("duration"), // in seconds
   ageRange: varchar("age_range"),
+  ageAppropriate: boolean("age_appropriate"),
+  culturallyAppropriate: boolean("culturally_appropriate"),
   values: text("values").array(), // Array of values like ['respect', 'kindness']
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -88,6 +91,7 @@ export const lullabies = pgTable("lullabies", {
   parentId: varchar("parent_id").notNull().references(() => users.id),
   childId: varchar("child_id").references(() => children.id),
   title: varchar("title").notNull(),
+  content: text("content"),
   audioUrl: varchar("audio_url").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -122,8 +126,11 @@ export const insertStorySchema = createInsertSchema(stories).pick({
   title: true,
   content: true,
   audioUrl: true,
+  imageUrl: true,
   duration: true,
   ageRange: true,
+  ageAppropriate: true,
+  culturallyAppropriate: true,
   values: true,
 });
 
@@ -137,6 +144,7 @@ export const insertLullabySchema = createInsertSchema(lullabies).pick({
   parentId: true,
   childId: true,
   title: true,
+  content: true,
   audioUrl: true,
 });
 

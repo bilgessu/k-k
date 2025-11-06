@@ -29,7 +29,7 @@ export default function StoryGenerationDialog({ trigger }: StoryGenerationDialog
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: children = [] } = useQuery({
+  const { data: children = [] } = useQuery<any[]>({
     queryKey: ['/api/children'],
   });
 
@@ -43,7 +43,7 @@ export default function StoryGenerationDialog({ trigger }: StoryGenerationDialog
 
   const generateStoryMutation = useMutation({
     mutationFn: async (data: StoryFormData) => {
-      const child = children.find((c: any) => c.id === data.childId);
+      const child = children.find((c) => c.id === data.childId);
       if (!child) throw new Error("Çocuk profili bulunamadı");
 
       return await apiRequest('POST', '/api/stories/generate', {

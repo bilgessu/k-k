@@ -62,7 +62,7 @@ export async function registerRoutes(app: express.Express): Promise<Server> {
       }
       
       // Get AI-powered child profile analysis
-      const profile = childMemory.getChildProfile(req.params.id);
+      const profile = await childMemory.getChildPersonalization(req.params.id);
       
       res.json({
         ...child,
@@ -118,36 +118,31 @@ export async function registerRoutes(app: express.Express): Promise<Server> {
   app.post('/api/stories/generate', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const { recordingId, childId, parentValue, childAge, childName } = req.body;
-
-      // Get the recording
-      const recording = await storage.getValueRecording(recordingId);
-      if (!recording) {
-        return res.status(404).json({ message: 'Recording not found' });
-      }
+      const { recordingId, childId, parentValue, childAge, childName, culturalTheme } = req.body;
 
       // Generate story using AI
-      const story = await generateTurkishCulturalStory(
-        parentValue,
+      const storyResult = await generateTurkishCulturalStory({
+        parentMessage: parentValue,
+        childName,
         childAge,
-        childName
-      );
+        culturalTheme
+      });
 
       // Analyze content for safety
-      const analysis = await analyzeCulturalContent(story);
+      const analysis = await analyzeCulturalContent(storyResult.content);
 
       // Generate TTS audio
-      const audioUrl = await generateTextToSpeech(story);
+      const audioUrl = await generateTextToSpeech(storyResult.content);
 
       const validatedData = insertStorySchema.parse({
         userId,
         childId,
         recordingId,
-        title: `${childName} için ${parentValue} Hikayesi`,
-        content: story,
+        title: storyResult.title,
+        content: storyResult.content,
         audioUrl,
-        ageAppropriate: analysis.isAgeAppropriate,
-        culturallyAppropriate: analysis.isCulturallyAppropriate,
+        ageAppropriate: storyResult.ageAppropriate,
+        culturallyAppropriate: analysis.appropriateness > 7,
       });
 
       const savedStory = await storage.createStory(validatedData);
@@ -203,44 +198,38 @@ export async function registerRoutes(app: express.Express): Promise<Server> {
       const orchestrator = new AgentOrchestrator();
 
       // Extract values from parent voice if provided
-      let parentEmotions = [];
-      let extractedValues = [];
+      let parentMessage = '';
       if (parentVoiceUrl) {
         const voiceAnalysis = await transcribeAndAnalyzeVoice(parentVoiceUrl);
-        parentEmotions = voiceAnalysis.emotions;
-        extractedValues = voiceAnalysis.values;
+        parentMessage = voiceAnalysis.transcription;
       }
 
       // Generate comprehensive story with multi-agent analysis
-      const result = await orchestrator.generateStory({
+      const result = await orchestrator.generateComprehensiveStory({
         childId,
         childName: childName || child.name,
         childAge: parseInt(childAge) || child.age,
+        parentMessage: parentMessage || culturalTheme || 'Turkish traditional values',
         culturalTheme: culturalTheme || 'Turkish traditional values',
-        parentVoiceUrl,
-        parentEmotions,
-        extractedValues,
-        interests: child.interests || [],
-        learningStyle: child.learningStyle || 'visual',
       });
 
       // Generate TTS audio
-      const audioUrl = await generateTextToSpeech(result.story);
+      const audioUrl = await generateTextToSpeech(result.story.content);
 
       // Generate story image
-      const imageUrl = await generateStoryImage(result.story);
+      const imageUrl = await generateStoryImage(result.story.title, result.story.content);
 
       // Save story to database
       const validatedData = insertStorySchema.parse({
         userId,
         childId,
         recordingId: null,
-        title: result.title,
-        content: result.story,
+        title: result.story.title,
+        content: result.story.content,
         audioUrl,
         imageUrl,
-        ageAppropriate: result.safetyCheck.ageAppropriate,
-        culturallyAppropriate: result.safetyCheck.culturallyAppropriate,
+        ageAppropriate: result.validation.ageAppropriateScore >= 7,
+        culturallyAppropriate: result.validation.culturalAlignmentScore >= 7,
       });
 
       const savedStory = await storage.createStory(validatedData);
@@ -249,10 +238,9 @@ export async function registerRoutes(app: express.Express): Promise<Server> {
       res.json({
         story: savedStory,
         aiAnalysis: {
-          psychologicalProfile: result.childAnalysis,
-          safetyCheck: result.safetyCheck,
-          voiceAnalysis: result.voiceAnalysis,
-          recommendations: result.recommendations,
+          psychologicalProfile: result.psychAnalysis,
+          safetyCheck: result.validation,
+          agentInsights: result.agentInsights,
         }
       });
     } catch (error: any) {
@@ -288,16 +276,20 @@ export async function registerRoutes(app: express.Express): Promise<Server> {
       const { parentMessage, childId, childName, childAge } = req.body;
 
       // Generate lullaby using AI
-      const lullaby = await generateLullaby(parentMessage, childName, childAge);
+      const lullabyResult = await generateLullaby({
+        parentMessage,
+        childName,
+        childAge
+      });
 
       // Generate TTS audio for lullaby
-      const audioUrl = await generateTextToSpeech(lullaby);
+      const audioUrl = await generateTextToSpeech(lullabyResult.lyrics);
 
       const validatedData = insertLullabySchema.parse({
         userId,
         childId,
         title: `${childName} için Ninni`,
-        content: lullaby,
+        content: lullabyResult.lyrics,
         audioUrl,
       });
 
