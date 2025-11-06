@@ -1,5 +1,11 @@
 import * as fs from "fs";
 import { GoogleGenAI, Modality } from "@google/genai";
+import { 
+  sanitizePromptInput, 
+  withTimeout, 
+  geminiCircuitBreaker,
+  AI_TIMEOUT_MS 
+} from "./utils/ai-safety";
 
 // Using Gemini 2.5 Pro as the core AI engine for AtaMind
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
@@ -21,19 +27,26 @@ interface StoryResult {
 export async function generateTurkishCulturalStory(params: StoryGenerationParams): Promise<StoryResult> {
   const { parentMessage, childName, childAge, culturalTheme = "geleneksel değerler" } = params;
   
+  // Sanitize inputs to prevent prompt injection
+  const safeParentMessage = sanitizePromptInput(parentMessage);
+  const safeCulturalTheme = sanitizePromptInput(culturalTheme);
+  const safeChildName = sanitizePromptInput(childName, 100);
+  
   const systemPrompt = `Sen AtaMind'ın hikaye uzmanısın. Türk kültürü ve geleneksel değerleri çocuklara aktaran eğitici hikayeler yazıyorsun.
 
 Görevin:
-1. Ebeveynin mesajını ${childAge} yaşındaki ${childName} için hikayeye dönüştür
+1. Ebeveynin mesajını ${childAge} yaşındaki ${safeChildName} için hikayeye dönüştür
 2. Türk kültürü öğelerini (misafirperverlik, saygı, yardımseverlik, dürüstlük) doğal olarak entegre et
 3. Yaşa uygun dil ve kavramlar kullan
 4. Hikayeyi JSON formatında döndür
 
-Kültürel tema: ${culturalTheme}
+Kültürel tema: ${safeCulturalTheme}
 Çocuğun yaşı: ${childAge}`;
 
   try {
-    const response = await ai.models.generateContent({
+    const response = await geminiCircuitBreaker.execute(() =>
+      withTimeout(
+        ai.models.generateContent({
       model: "gemini-2.5-pro",
       config: {
         systemInstruction: systemPrompt,
@@ -49,13 +62,17 @@ Kültürel tema: ${culturalTheme}
           required: ["title", "content", "moralLesson", "ageAppropriate"]
         }
       },
-      contents: `Ebeveyn mesajı: "${parentMessage}"
+      contents: `Ebeveyn mesajı: "${safeParentMessage}"
       
-Çocuk: ${childName} (${childAge} yaş)
-Konu: ${culturalTheme}
+Çocuk: ${safeChildName} (${childAge} yaş)
+Konu: ${safeCulturalTheme}
 
-Bu mesajı temel alarak ${childName} için eğitici bir Türk kültürü hikayesi yaz.`
-    });
+Bu mesajı temel alarak ${safeChildName} için eğitici bir Türk kültürü hikayesi yaz.`
+        }),
+        AI_TIMEOUT_MS,
+        'Story generation timeout'
+      )
+    );
 
     const rawJson = response.text;
     if (rawJson) {
@@ -73,16 +90,22 @@ Bu mesajı temel alarak ${childName} için eğitici bir Türk kültürü hikayes
 export async function generateLullaby(params: StoryGenerationParams): Promise<{ lyrics: string; melody: string }> {
   const { parentMessage, childName, childAge } = params;
   
+  // Sanitize inputs to prevent prompt injection
+  const safeParentMessage = sanitizePromptInput(parentMessage);
+  const safeChildName = sanitizePromptInput(childName, 100);
+  
   const systemPrompt = `Sen AtaMind'ın ninni uzmanısın. Türk kültürü ve anne-baba sevgisini yansıtan sakinleştirici ninniler yazıyorsun.
 
 Görevin:
-1. Ebeveynin mesajını ${childAge} yaşındaki ${childName} için ninni sözlerine dönüştür
+1. Ebeveynin mesajını ${childAge} yaşındaki ${safeChildName} için ninni sözlerine dönüştür
 2. Geleneksel Türk ninni yapısını kullan
 3. Sakinleştirici, sevgi dolu ifadeler kullan
 4. JSON formatında döndür`;
 
   try {
-    const response = await ai.models.generateContent({
+    const response = await geminiCircuitBreaker.execute(() =>
+      withTimeout(
+        ai.models.generateContent({
       model: "gemini-2.5-pro",
       config: {
         systemInstruction: systemPrompt,
@@ -96,12 +119,16 @@ Görevin:
           required: ["lyrics", "melody"]
         }
       },
-      contents: `Ebeveyn mesajı: "${parentMessage}"
+      contents: `Ebeveyn mesajı: "${safeParentMessage}"
       
-Çocuk: ${childName} (${childAge} yaş)
+Çocuk: ${safeChildName} (${childAge} yaş)
 
-Bu mesajı temel alarak ${childName} için sevgi dolu bir ninni yaz.`
-    });
+Bu mesajı temel alarak ${safeChildName} için sevgi dolu bir ninni yaz.`
+        }),
+        AI_TIMEOUT_MS,
+        'Lullaby generation timeout'
+      )
+    );
 
     const rawJson = response.text;
     if (rawJson) {
@@ -124,7 +151,9 @@ export async function transcribeAndAnalyzeVoice(audioFilePath: string): Promise<
   try {
     const audioBytes = fs.readFileSync(audioFilePath);
     
-    const response = await ai.models.generateContent({
+    const response = await geminiCircuitBreaker.execute(() =>
+      withTimeout(
+        ai.models.generateContent({
       model: "gemini-2.5-pro",
       config: {
         responseMimeType: "application/json",
@@ -153,8 +182,12 @@ export async function transcribeAndAnalyzeVoice(audioFilePath: string): Promise<
 4. Hikaye için önerilen temalar
 
 Türk kültürü bağlamında değerlendir.`
-      ]
-    });
+        ]
+        }),
+        AI_TIMEOUT_MS * 2, // 14s timeout for audio transcription (larger files)
+        'Voice transcription timeout - audio processing took too long'
+      )
+    );
 
     const rawJson = response.text;
     if (rawJson) {
@@ -211,31 +244,40 @@ export async function analyzeCulturalContent(content: string): Promise<{
   suggestions: string[];
 }> {
   const systemPrompt = `Sen Türk kültürü uzmanısın. Çocuklar için yazılan içeriklerin kültürel doğruluğunu ve uygunluğunu değerlendiriyorsun.`;
+  
+  // Sanitize content before analysis
+  const safeContent = sanitizePromptInput(content, 2000);
 
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-pro",
-      config: {
-        systemInstruction: systemPrompt,
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: "object",
-          properties: {
-            culturalAccuracy: { type: "number", minimum: 0, maximum: 10 },
-            appropriateness: { type: "number", minimum: 0, maximum: 10 },
-            suggestions: { type: "array", items: { type: "string" } }
+    const response = await geminiCircuitBreaker.execute(() =>
+      withTimeout(
+        ai.models.generateContent({
+          model: "gemini-2.5-pro",
+          config: {
+            systemInstruction: systemPrompt,
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: "object",
+              properties: {
+                culturalAccuracy: { type: "number", minimum: 0, maximum: 10 },
+                appropriateness: { type: "number", minimum: 0, maximum: 10 },
+                suggestions: { type: "array", items: { type: "string" } }
+              },
+              required: ["culturalAccuracy", "appropriateness", "suggestions"]
+            }
           },
-          required: ["culturalAccuracy", "appropriateness", "suggestions"]
-        }
-      },
-      contents: `Bu içeriği Türk kültürü perspektifinden değerlendir:
+          contents: `Bu içeriği Türk kültürü perspektifinden değerlendir:
 
-"${content}"
+"${safeContent}"
 
 1. Kültürel doğruluk (0-10)
 2. Yaş uygunluğu (0-10) 
 3. İyileştirme önerileri`
-    });
+        }),
+        AI_TIMEOUT_MS,
+        'Cultural content analysis timeout'
+      )
+    );
 
     const rawJson = response.text;
     if (rawJson) {

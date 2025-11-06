@@ -1,4 +1,10 @@
 import { GoogleGenAI } from "@google/genai";
+import { 
+  sanitizePromptInput, 
+  withTimeout, 
+  geminiCircuitBreaker,
+  AI_TIMEOUT_MS 
+} from "../utils/ai-safety";
 
 // Initialize Gemini 2.5 Pro for agent orchestration
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
@@ -7,6 +13,10 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 export class ChildPersonalizationMemory {
   private childProfiles: Map<string, any> = new Map();
   private interactions: Map<string, any[]> = new Map();
+  
+  // Memory limits to prevent OOM crashes
+  private readonly MAX_CHILDREN = 1000;
+  private readonly MAX_INTERACTIONS_PER_CHILD = 50;
 
   constructor() {
     // Initialize with simple in-memory storage - in production use vector DB
@@ -18,16 +28,32 @@ export class ChildPersonalizationMemory {
     preferences: string[];
     timestamp: Date;
   }) {
-    // Store interaction in memory
-    const interactions = this.interactions.get(childId) || [];
+    // Get current interactions and apply size limit
+    let interactions = this.interactions.get(childId) || [];
+    
+    // Keep only last N interactions (LRU within child)
+    if (interactions.length >= this.MAX_INTERACTIONS_PER_CHILD) {
+      interactions = interactions.slice(-this.MAX_INTERACTIONS_PER_CHILD + 1);
+    }
+    
     interactions.push(interaction);
     this.interactions.set(childId, interactions);
     
     // Update child profile
     const profile = this.childProfiles.get(childId) || { interactions: [], preferences: new Set() };
-    profile.interactions.push(interaction);
+    profile.interactions = interactions; // Use bounded interactions
     interaction.preferences.forEach(pref => profile.preferences.add(pref));
     this.childProfiles.set(childId, profile);
+    
+    // LRU eviction if too many children
+    if (this.interactions.size > this.MAX_CHILDREN) {
+      const oldestChildId = this.interactions.keys().next().value;
+      if (oldestChildId) {
+        this.interactions.delete(oldestChildId);
+        this.childProfiles.delete(oldestChildId);
+        console.log(`Memory: Evicted oldest child profile (${oldestChildId}) - LRU limit reached`);
+      }
+    }
   }
 
   async getChildPersonalization(childId: string): Promise<{
@@ -78,19 +104,24 @@ export class StorytellerAgent {
     culturalTheme: string;
     personalization: any;
   }) {
+    // Sanitize user inputs to prevent prompt injection
+    const safeParentMessage = sanitizePromptInput(params.parentMessage);
+    const safeCulturalTheme = sanitizePromptInput(params.culturalTheme);
+    const safeChildName = sanitizePromptInput(params.childName, 100);
+    
     const systemPrompt = `Sen AtaMind'ın çoklu AI ajan sistemi içindeki Türk kültürü hikaye uzmanısın. 
 
 GÖREV: Çocuk profili ve geçmiş etkileşimlere dayalı ultra-kişiselleştirilmiş hikayeler oluştur.
 
 ÇOCUK PROFİLİ:
-- İsim: ${params.childName}
+- İsim: ${safeChildName}
 - Yaş: ${params.childAge} 
 - Kişilik: ${params.personalization.personalityTraits.join(', ') || 'Meraklı, sevecen'}
 - Tercihler: ${params.personalization.preferences.join(', ') || 'Hayvan hikayeleri, macera'}
 - Geçmiş Tepkiler: ${params.personalization.recentInteractions.map((i: any) => `"${i.story}" -> ${i.reaction}`).join('\n') || 'İlk hikaye'}
 
-Ebeveyn Mesajı: "${params.parentMessage}"
-Kültürel Tema: ${params.culturalTheme}
+Ebeveyn Mesajı: "${safeParentMessage}"
+Kültürel Tema: ${safeCulturalTheme}
 
 ÖZELLEŞTİRME TALİMATLARI:
 1. Çocuğun yaş seviyesine ve kişiliğine tam uygun dil kullan
@@ -102,28 +133,35 @@ Kültürel Tema: ${params.culturalTheme}
 Yanıtını JSON formatında ver.`;
 
     try {
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-pro",
-        config: {
-          systemInstruction: systemPrompt,
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "object",
-            properties: {
-              title: { type: "string" },
-              content: { type: "string" },
-              moralLesson: { type: "string" },
-              personalizedElements: { type: "array", items: { type: "string" } },
-              culturalElements: { type: "array", items: { type: "string" } },
-              ageAppropriate: { type: "boolean" },
-              emotionalTone: { type: "string" },
-              interactiveCues: { type: "array", items: { type: "string" } }
+      // Wrap AI call with timeout and circuit breaker for reliability
+      const response = await geminiCircuitBreaker.execute(() =>
+        withTimeout(
+          ai.models.generateContent({
+            model: "gemini-2.5-pro",
+            config: {
+              systemInstruction: systemPrompt,
+              responseMimeType: "application/json",
+              responseSchema: {
+                type: "object",
+                properties: {
+                  title: { type: "string" },
+                  content: { type: "string" },
+                  moralLesson: { type: "string" },
+                  personalizedElements: { type: "array", items: { type: "string" } },
+                  culturalElements: { type: "array", items: { type: "string" } },
+                  ageAppropriate: { type: "boolean" },
+                  emotionalTone: { type: "string" },
+                  interactiveCues: { type: "array", items: { type: "string" } }
+                },
+                required: ["title", "content", "moralLesson", "personalizedElements", "culturalElements", "ageAppropriate"]
+              }
             },
-            required: ["title", "content", "moralLesson", "personalizedElements", "culturalElements", "ageAppropriate"]
-          }
-        },
-        contents: `Yukarıdaki profil ve talimatları kullanarak ${params.childName} için özel hikaye oluştur.`
-      });
+            contents: `Yukarıdaki profil ve talimatları kullanarak ${safeChildName} için özel hikaye oluştur.`
+          }),
+          AI_TIMEOUT_MS,
+          'Story generation timeout - AI took too long to respond'
+        )
+      );
 
       const rawJson = response.text;
       if (rawJson) {
@@ -131,6 +169,8 @@ Yanıtını JSON formatında ver.`;
       }
     } catch (error) {
       console.error('Storyteller Agent Error:', error);
+      // Re-throw to allow caller to handle
+      throw error;
     }
 
     // Fallback
@@ -183,28 +223,35 @@ TÜRK KÜLTÜRÜ BAĞLAMI:
 Kapsamlı analiz ve pratik öneriler sun.`;
 
     try {
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-pro",
-        config: {
-          systemInstruction: systemPrompt,
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "object",
-            properties: {
-              developmentalAssessment: { type: "string" },
-              learningStyle: { type: "string" },
-              emotionalNeeds: { type: "array", items: { type: "string" } },
-              parentRecommendations: { type: "array", items: { type: "string" } },
-              nextStoryThemes: { type: "array", items: { type: "string" } },
-              culturalReadiness: { type: "string" },
-              engagementTips: { type: "array", items: { type: "string" } },
-              developmentalGoals: { type: "array", items: { type: "string" } }
+      // Wrap AI call with timeout and circuit breaker
+      const response = await geminiCircuitBreaker.execute(() =>
+        withTimeout(
+          ai.models.generateContent({
+            model: "gemini-2.5-pro",
+            config: {
+              systemInstruction: systemPrompt,
+              responseMimeType: "application/json",
+              responseSchema: {
+                type: "object",
+                properties: {
+                  developmentalAssessment: { type: "string" },
+                  learningStyle: { type: "string" },
+                  emotionalNeeds: { type: "array", items: { type: "string" } },
+                  parentRecommendations: { type: "array", items: { type: "string" } },
+                  nextStoryThemes: { type: "array", items: { type: "string" } },
+                  culturalReadiness: { type: "string" },
+                  engagementTips: { type: "array", items: { type: "string" } },
+                  developmentalGoals: { type: "array", items: { type: "string" } }
+                },
+                required: ["developmentalAssessment", "learningStyle", "emotionalNeeds", "parentRecommendations", "nextStoryThemes"]
+              }
             },
-            required: ["developmentalAssessment", "learningStyle", "emotionalNeeds", "parentRecommendations", "nextStoryThemes"]
-          }
-        },
-        contents: `${params.childName} için detaylı gelişimsel analiz yap.`
-      });
+            contents: `${params.childName} için detaylı gelişimsel analiz yap.`
+          }),
+          AI_TIMEOUT_MS,
+          'Child development analysis timeout - AI took too long'
+        )
+      );
 
       const rawJson = response.text;
       if (rawJson) {
@@ -212,6 +259,7 @@ Kapsamlı analiz ve pratik öneriler sun.`;
       }
     } catch (error) {
       console.error('Psychology Agent Error:', error);
+      // Fall through to age-based fallback
     }
 
     // Fallback based on age
@@ -271,12 +319,15 @@ export class GuardianAgent {
   constructor() {}
 
   async validateContent(content: string, childAge: number, childPersonality?: string[]) {
+    // Sanitize content before validation (prevent injection via content field)
+    const safeContent = sanitizePromptInput(content, 2000); // Allow longer content for stories
+    
     const systemPrompt = `Sen AtaMind çoklu-ajan sistemindeki içerik güvenlik uzmanısın.
 
 GÖREV: İçeriklerin çok katmanlı analizi ile çocuk güvenliği ve Türk aile değerleri uygunluğunu değerlendir.
 
 DEĞERLENDİRİLECEK İÇERİK:
-"${content}"
+"${safeContent}"
 
 ÇOCUK PROFİLİ:
 - Yaş: ${childAge}
@@ -299,31 +350,38 @@ TÜRK KÜLTÜRÜ REFERANSLARI:
 Kapsamlı güvenlik değerlendirmesi yap.`;
 
     try {
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-pro",
-        config: {
-          systemInstruction: systemPrompt,
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: "object",
-            properties: {
-              approved: { type: "boolean" },
-              overallScore: { type: "number", minimum: 0, maximum: 10 },
-              ageAppropriateScore: { type: "number", minimum: 0, maximum: 10 },
-              culturalAlignmentScore: { type: "number", minimum: 0, maximum: 10 },
-              safetyScore: { type: "number", minimum: 0, maximum: 10 },
-              educationalValue: { type: "number", minimum: 0, maximum: 10 },
-              concerns: { type: "array", items: { type: "string" } },
-              improvements: { type: "array", items: { type: "string" } },
-              strengths: { type: "array", items: { type: "string" } },
-              parentGuidance: { type: "array", items: { type: "string" } },
-              ageAdjustments: { type: "string" }
+      // Wrap AI call with timeout and circuit breaker
+      const response = await geminiCircuitBreaker.execute(() =>
+        withTimeout(
+          ai.models.generateContent({
+            model: "gemini-2.5-pro",
+            config: {
+              systemInstruction: systemPrompt,
+              responseMimeType: "application/json",
+              responseSchema: {
+                type: "object",
+                properties: {
+                  approved: { type: "boolean" },
+                  overallScore: { type: "number", minimum: 0, maximum: 10 },
+                  ageAppropriateScore: { type: "number", minimum: 0, maximum: 10 },
+                  culturalAlignmentScore: { type: "number", minimum: 0, maximum: 10 },
+                  safetyScore: { type: "number", minimum: 0, maximum: 10 },
+                  educationalValue: { type: "number", minimum: 0, maximum: 10 },
+                  concerns: { type: "array", items: { type: "string" } },
+                  improvements: { type: "array", items: { type: "string" } },
+                  strengths: { type: "array", items: { type: "string" } },
+                  parentGuidance: { type: "array", items: { type: "string" } },
+                  ageAdjustments: { type: "string" }
+                },
+                required: ["approved", "overallScore", "ageAppropriateScore", "culturalAlignmentScore", "safetyScore", "concerns", "improvements"]
+              }
             },
-            required: ["approved", "overallScore", "ageAppropriateScore", "culturalAlignmentScore", "safetyScore", "concerns", "improvements"]
-          }
-        },
-        contents: `Bu içeriği ${childAge} yaşındaki çocuk için kapsamlı olarak değerlendir.`
-      });
+            contents: `Bu içeriği ${childAge} yaşındaki çocuk için kapsamlı olarak değerlendir.`
+          }),
+          AI_TIMEOUT_MS,
+          'Content validation timeout - AI safety check took too long'
+        )
+      );
 
       const rawJson = response.text;
       if (rawJson) {
@@ -339,6 +397,7 @@ Kapsamlı güvenlik değerlendirmesi yap.`;
       }
     } catch (error) {
       console.error('Guardian Agent Error:', error);
+      throw error; // Re-throw to enforce safety - don't approve if validation fails
     }
 
     // Conservative fallback
