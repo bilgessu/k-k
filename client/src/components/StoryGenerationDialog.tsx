@@ -46,13 +46,15 @@ export default function StoryGenerationDialog({ trigger }: StoryGenerationDialog
       const child = children.find((c) => c.id === data.childId);
       if (!child) throw new Error("Çocuk profili bulunamadı");
 
-      return await apiRequest('POST', '/api/stories/generate', {
+      const response = await apiRequest('POST', '/api/stories/generate', {
         childId: data.childId,
         childName: child.name,
         childAge: child.age,
         parentValue: data.parentValue,
         culturalTheme: data.culturalTheme,
       });
+      
+      return await response.json();
     },
     onSuccess: (story) => {
       toast({
