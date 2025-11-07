@@ -264,7 +264,7 @@ export async function registerRoutes(app: express.Express): Promise<Server> {
   app.post('/api/stories/generate-advanced', isAuthenticated, upload.single('voiceRecording'), async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const { childId, culturalTheme, childName, childAge } = req.body;
+      const { childId, culturalTheme, childName, childAge, parentMessage: textMessage } = req.body;
 
       let parentVoiceUrl = null;
       if (req.file) {
@@ -274,17 +274,23 @@ export async function registerRoutes(app: express.Express): Promise<Server> {
         parentVoiceUrl = audioPath;
       }
 
-      // Get child data
-      const child = await storage.getChild(childId);
-      if (!child) {
-        return res.status(404).json({ message: 'Child not found' });
+      // Get child data if childId provided, otherwise use form data
+      let finalChildName = childName;
+      let finalChildAge = parseInt(childAge) || 5;
+      
+      if (childId) {
+        const child = await storage.getChild(childId);
+        if (child) {
+          finalChildName = childName || child.name;
+          finalChildAge = parseInt(childAge) || child.age;
+        }
       }
 
       // Initialize multi-agent orchestrator
       const orchestrator = new AgentOrchestrator();
 
-      // Extract values from parent voice if provided
-      let parentMessage = '';
+      // Extract values from parent voice if provided, otherwise use text message
+      let parentMessage = textMessage || '';
       if (parentVoiceUrl) {
         const voiceAnalysis = await transcribeAndAnalyzeVoice(parentVoiceUrl);
         parentMessage = voiceAnalysis.transcription;
@@ -292,9 +298,9 @@ export async function registerRoutes(app: express.Express): Promise<Server> {
 
       // Generate comprehensive story with multi-agent analysis
       const result = await orchestrator.generateComprehensiveStory({
-        childId,
-        childName: childName || child.name,
-        childAge: parseInt(childAge) || child.age,
+        childId: childId || 'demo',
+        childName: finalChildName,
+        childAge: finalChildAge,
         parentMessage: parentMessage || culturalTheme || 'Turkish traditional values',
         culturalTheme: culturalTheme || 'Turkish traditional values',
       });
