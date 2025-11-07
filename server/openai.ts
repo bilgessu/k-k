@@ -74,7 +74,7 @@ Respond with JSON in this exact format:
   }
 }
 
-export async function generateTextToSpeech(text: string): Promise<Buffer> {
+export async function generateTextToSpeech(text: string): Promise<string> {
   try {
     const mp3 = await openai.audio.speech.create({
       model: "tts-1",
@@ -82,7 +82,16 @@ export async function generateTextToSpeech(text: string): Promise<Buffer> {
       input: text,
     });
 
-    return Buffer.from(await mp3.arrayBuffer());
+    const buffer = Buffer.from(await mp3.arrayBuffer());
+    
+    // Save audio to file and return the path
+    const fileName = `audio-${Date.now()}.mp3`;
+    const audioPath = `uploads/${fileName}`;
+    
+    const fs = await import('fs/promises');
+    await fs.writeFile(audioPath, buffer);
+    
+    return audioPath;
   } catch (error) {
     console.error("Error generating speech:", error);
     throw new Error("Ses oluşturulurken bir hata oluştu: " + (error as Error).message);
