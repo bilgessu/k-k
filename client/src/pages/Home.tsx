@@ -170,28 +170,6 @@ export default function HomePage() {
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-textDark mb-4">Gelişmiş AI Özellikleri</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Multi-Agent Story System */}
-            <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-blue-50">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center mr-3">
-                      <Brain className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-textDark">Çoklu-Ajan AI</h4>
-                      <p className="text-xs text-gray-600">Tutor, Guardian & Psychologist</p>
-                    </div>
-                  </div>
-                  <Link href="/multi-agent-story">
-                    <Button size="sm" className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
-                      Dene
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-
             {/* AI Insights */}
             <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
               <CardContent className="p-4">

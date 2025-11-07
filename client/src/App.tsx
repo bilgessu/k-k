@@ -10,7 +10,6 @@ import VoiceRecording from "@/pages/VoiceRecording";
 import StoryLibrary from "@/pages/StoryLibrary";
 import StoryPlayer from "@/pages/StoryPlayer";
 import ChildMode from "@/pages/ChildMode";
-import MultiAgentStory from "@/pages/MultiAgentStory";
 import AIInsights from "@/pages/AIInsights";
 import VoiceAnalytics from "@/pages/VoiceAnalytics";
 import Statistics from "@/pages/Statistics";
@@ -34,7 +33,6 @@ function Router() {
           <Route path="/story-player/:id" component={StoryPlayer} />
           <Route path="/child-mode" component={ChildMode} />
           <Route path="/child-mode/:childId" component={ChildMode} />
-          <Route path="/multi-agent-story" component={MultiAgentStory} />
           <Route path="/ai-insights" component={AIInsights} />
           <Route path="/voice-analytics" component={VoiceAnalytics} />
           <Route path="/statistics" component={Statistics} />
