@@ -26,6 +26,7 @@ interface StoryFormData {
 export default function StoryGenerationDialog({ trigger }: StoryGenerationDialogProps) {
   const [open, setOpen] = useState(false);
   const [generatedStory, setGeneratedStory] = useState<any>(null);
+  const [estimatedTime, setEstimatedTime] = useState<number>(60);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -47,20 +48,34 @@ export default function StoryGenerationDialog({ trigger }: StoryGenerationDialog
       if (!child) throw new Error("Çocuk profili bulunamadı");
 
       console.log('🚀 Hikaye oluşturma başlatılıyor...', { childName: child.name, childAge: child.age });
-
-      const response = await apiRequest('POST', '/api/stories/generate', {
-        childId: data.childId,
-        childName: child.name,
-        childAge: child.age,
-        parentValue: data.parentValue,
-        culturalTheme: data.culturalTheme,
-      });
       
-      const story = await response.json();
-      console.log('✅ Hikaye başarıyla oluşturuldu:', story.title);
-      return story;
+      // Start timer for estimated time
+      const startTime = Date.now();
+      const timer = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        setEstimatedTime(Math.max(0, 120 - elapsed)); // 2 minute countdown
+      }, 1000);
+
+      try {
+        const response = await apiRequest('POST', '/api/stories/generate', {
+          childId: data.childId,
+          childName: child.name,
+          childAge: child.age,
+          parentValue: data.parentValue,
+          culturalTheme: data.culturalTheme,
+        });
+        
+        clearInterval(timer);
+        const story = await response.json();
+        console.log('✅ Hikaye başarıyla oluşturuldu:', story.title);
+        return story;
+      } catch (error) {
+        clearInterval(timer);
+        throw error;
+      }
     },
     onSuccess: (story) => {
+      setEstimatedTime(60);
       toast({
         title: "Hikaye Oluşturuldu! 🎉",
         description: "Gemini AI ile özel Türk kültürü hikayeniz hazır.",
@@ -69,10 +84,23 @@ export default function StoryGenerationDialog({ trigger }: StoryGenerationDialog
       queryClient.invalidateQueries({ queryKey: ['/api/stories'] });
     },
     onError: (error) => {
+      setEstimatedTime(60);
       console.error('❌ Hikaye oluşturma hatası:', error);
+      
+      let errorMessage = "Hikaye oluşturulurken bir sorun oluştu.";
+      if (error instanceof Error) {
+        if (error.message.includes('aborted')) {
+          errorMessage = "İşlem çok uzun sürdü. Lütfen daha kısa bir mesaj deneyin veya tekrar deneyin.";
+        } else if (error.message.includes('timeout')) {
+          errorMessage = "Bağlantı zaman aşımına uğradı. İnternet bağlantınızı kontrol edip tekrar deneyin.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       toast({
         title: "Hata",
-        description: error instanceof Error ? error.message : "Hikaye oluşturulurken bir sorun oluştu.",
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -200,10 +228,15 @@ export default function StoryGenerationDialog({ trigger }: StoryGenerationDialog
                   className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
                 >
                   {generateStoryMutation.isPending ? (
-                    <>
-                      <Sparkles className="w-4 h-4 mr-2 animate-spin" />
-                      Gemini AI Çalışıyor...
-                    </>
+                    <div className="flex flex-col items-center w-full">
+                      <div className="flex items-center mb-1">
+                        <Sparkles className="w-4 h-4 mr-2 animate-spin" />
+                        Gemini AI Çalışıyor...
+                      </div>
+                      <div className="text-xs opacity-80">
+                        {estimatedTime > 0 ? `Tahmini ${estimatedTime}s kaldı...` : 'Neredeyse bitti...'}
+                      </div>
+                    </div>
                   ) : (
                     <>
                       <Wand2 className="w-4 h-4 mr-2" />
