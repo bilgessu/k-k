@@ -213,7 +213,7 @@ export default function StoryGenerationDialog({ trigger }: StoryGenerationDialog
               <Badge className="bg-green-100 text-green-800 mb-4">
                 ✨ Gemini AI ile Oluşturuldu
               </Badge>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">{generatedStory.title}</h3>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">{generatedStory?.title || 'Hikaye'}</h3>
             </div>
 
             <Card>
@@ -225,11 +225,15 @@ export default function StoryGenerationDialog({ trigger }: StoryGenerationDialog
               </CardHeader>
               <CardContent>
                 <div className="prose prose-sm max-w-none">
-                  {generatedStory.content.split('\n\n').map((paragraph: string, index: number) => (
-                    <p key={index} className="mb-3 text-gray-700 leading-relaxed">
-                      {paragraph}
-                    </p>
-                  ))}
+                  {generatedStory?.content ? (
+                    generatedStory.content.split('\n\n').map((paragraph: string, index: number) => (
+                      <p key={index} className="mb-3 text-gray-700 leading-relaxed">
+                        {paragraph}
+                      </p>
+                    ))
+                  ) : (
+                    <p className="text-gray-500">Hikaye içeriği yükleniyor...</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
