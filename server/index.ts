@@ -3,8 +3,8 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: '50mb' })); // Increase payload limit for large AI responses
+app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -55,6 +55,11 @@ app.use((req, res, next) => {
   } else {
     serveStatic(app);
   }
+
+  // Configure server timeouts for long-running AI operations
+  server.timeout = 600000; // 10 minutes
+  server.keepAliveTimeout = 610000; // 10 minutes + 10 seconds
+  server.headersTimeout = 620000; // 10 minutes + 20 seconds
 
   // ALWAYS serve the app on the port specified in the environment variable PORT
   // Other ports are firewalled. Default to 5000 if not specified.
