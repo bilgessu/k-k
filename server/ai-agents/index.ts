@@ -3,7 +3,8 @@ import {
   sanitizePromptInput, 
   withTimeout, 
   geminiCircuitBreaker,
-  AI_TIMEOUT_MS 
+  AI_TIMEOUT_MS,
+  MULTI_AGENT_TIMEOUT_MS 
 } from "../utils/ai-safety";
 import { VectorStore, type VectorDocument } from "../utils/vector-store";
 import { generateEmbedding, generateEmbeddingsBatch } from "../utils/embeddings";
@@ -231,6 +232,7 @@ Yanıtını JSON formatında ver.`;
 
     try {
       // Wrap AI call with timeout and circuit breaker for reliability
+      // Use longer timeout for complex story generation
       const response = await geminiCircuitBreaker.execute(() =>
         withTimeout(
           ai.models.generateContent({
@@ -255,7 +257,7 @@ Yanıtını JSON formatında ver.`;
             },
             contents: `Yukarıdaki profil ve talimatları kullanarak ${safeChildName} için özel hikaye oluştur.`
           }),
-          AI_TIMEOUT_MS,
+          MULTI_AGENT_TIMEOUT_MS,
           'Story generation timeout - AI took too long to respond'
         )
       );
@@ -345,7 +347,7 @@ Kapsamlı analiz ve pratik öneriler sun.`;
             },
             contents: `${params.childName} için detaylı gelişimsel analiz yap.`
           }),
-          AI_TIMEOUT_MS,
+          MULTI_AGENT_TIMEOUT_MS,
           'Child development analysis timeout - AI took too long'
         )
       );
@@ -475,7 +477,7 @@ Kapsamlı güvenlik değerlendirmesi yap.`;
             },
             contents: `Bu içeriği ${childAge} yaşındaki çocuk için kapsamlı olarak değerlendir.`
           }),
-          AI_TIMEOUT_MS,
+          MULTI_AGENT_TIMEOUT_MS,
           'Content validation timeout - AI safety check took too long'
         )
       );
