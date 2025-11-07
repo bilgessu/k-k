@@ -4,7 +4,8 @@ import {
   sanitizePromptInput, 
   withTimeout, 
   geminiCircuitBreaker,
-  AI_TIMEOUT_MS 
+  AI_TIMEOUT_MS,
+  MULTI_AGENT_TIMEOUT_MS 
 } from "./utils/ai-safety";
 
 // Using Gemini 2.5 Pro as the core AI engine for AtaMind
@@ -69,7 +70,7 @@ Konu: ${safeCulturalTheme}
 
 Bu mesajı temel alarak ${safeChildName} için eğitici bir Türk kültürü hikayesi yaz.`
         }),
-        AI_TIMEOUT_MS,
+        MULTI_AGENT_TIMEOUT_MS,
         'Story generation timeout'
       )
     );
@@ -125,7 +126,7 @@ Görevin:
 
 Bu mesajı temel alarak ${safeChildName} için sevgi dolu bir ninni yaz.`
         }),
-        AI_TIMEOUT_MS,
+        MULTI_AGENT_TIMEOUT_MS,
         'Lullaby generation timeout'
       )
     );
@@ -184,7 +185,7 @@ export async function transcribeAndAnalyzeVoice(audioFilePath: string): Promise<
 Türk kültürü bağlamında değerlendir.`
         ]
         }),
-        AI_TIMEOUT_MS * 2, // 14s timeout for audio transcription (larger files)
+        MULTI_AGENT_TIMEOUT_MS, // 4 minutes for audio transcription
         'Voice transcription timeout - audio processing took too long'
       )
     );
@@ -274,7 +275,7 @@ export async function analyzeCulturalContent(content: string): Promise<{
 2. Yaş uygunluğu (0-10) 
 3. İyileştirme önerileri`
         }),
-        AI_TIMEOUT_MS,
+        MULTI_AGENT_TIMEOUT_MS,
         'Cultural content analysis timeout'
       )
     );
