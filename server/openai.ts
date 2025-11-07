@@ -91,7 +91,8 @@ export async function generateTextToSpeech(text: string): Promise<string> {
     const fs = await import('fs/promises');
     await fs.writeFile(audioPath, buffer);
     
-    return audioPath;
+    // Return path with leading slash for web serving
+    return `/${audioPath}`;
   } catch (error) {
     console.error("Error generating speech:", error);
     throw new Error("Ses oluşturulurken bir hata oluştu: " + (error as Error).message);

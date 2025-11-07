@@ -17,6 +17,9 @@ const upload = multer({ dest: 'uploads/' });
 export async function registerRoutes(app: express.Express): Promise<Server> {
   const httpServer = createServer(app);
 
+  // Serve static files from uploads directory (audio, images)
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
   // Setup authentication (will use localAuth when running locally)
   await setupAuth(app);
 
@@ -179,7 +182,7 @@ export async function registerRoutes(app: express.Express): Promise<Server> {
         childId,
         title,
         description,
-        audioUrl: audioPath,
+        audioUrl: `/${audioPath}`, // Add leading slash for web serving
         duration: 0, // Could be calculated from audio file
       });
 
@@ -271,7 +274,7 @@ export async function registerRoutes(app: express.Express): Promise<Server> {
         const fileName = `${Date.now()}-${req.file.originalname}`;
         const audioPath = path.join('uploads', fileName);
         await fs.rename(req.file.path, audioPath);
-        parentVoiceUrl = audioPath;
+        parentVoiceUrl = `/${audioPath}`; // Add leading slash for web serving
       }
 
       // Get child data if childId provided, otherwise use form data
@@ -409,7 +412,7 @@ export async function registerRoutes(app: express.Express): Promise<Server> {
         userId,
         childId,
         title,
-        audioUrl: audioPath,
+        audioUrl: `/${audioPath}`, // Add leading slash for web serving
       });
 
       const lullaby = await storage.createLullaby(validatedData);
