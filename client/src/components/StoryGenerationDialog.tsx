@@ -46,6 +46,8 @@ export default function StoryGenerationDialog({ trigger }: StoryGenerationDialog
       const child = children.find((c) => c.id === data.childId);
       if (!child) throw new Error("Çocuk profili bulunamadı");
 
+      console.log('🚀 Hikaye oluşturma başlatılıyor...', { childName: child.name, childAge: child.age });
+
       const response = await apiRequest('POST', '/api/stories/generate', {
         childId: data.childId,
         childName: child.name,
@@ -54,7 +56,9 @@ export default function StoryGenerationDialog({ trigger }: StoryGenerationDialog
         culturalTheme: data.culturalTheme,
       });
       
-      return await response.json();
+      const story = await response.json();
+      console.log('✅ Hikaye başarıyla oluşturuldu:', story.title);
+      return story;
     },
     onSuccess: (story) => {
       toast({
@@ -65,9 +69,10 @@ export default function StoryGenerationDialog({ trigger }: StoryGenerationDialog
       queryClient.invalidateQueries({ queryKey: ['/api/stories'] });
     },
     onError: (error) => {
+      console.error('❌ Hikaye oluşturma hatası:', error);
       toast({
         title: "Hata",
-        description: "Hikaye oluşturulurken bir sorun oluştu.",
+        description: error instanceof Error ? error.message : "Hikaye oluşturulurken bir sorun oluştu.",
         variant: "destructive",
       });
     },
