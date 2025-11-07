@@ -27,6 +27,11 @@ interface UsageStats {
   favorite_activity_type: string;
   engagement_trend: string;
   weekly_sessions: number;
+  total_stories?: number;
+  total_listening_time?: number;
+  learned_values?: string[];
+  weekly_streak?: number;
+  achievement_score?: number;
 }
 
 interface ChildStats extends UsageStats {
@@ -60,10 +65,16 @@ export default function StatisticsPage() {
 
   const { data: statistics, isLoading: statsLoading } = useQuery<ChildStats[]>({
     queryKey: ['/api/statistics', selectedChildId],
+    queryFn: async () => {
+      const response = await fetch(`/api/statistics?childId=${selectedChildId}`, {
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to fetch statistics');
+      return response.json();
+    },
     enabled: isAuthenticated && !!selectedChildId,
   });
 
-  // Auto-select first child if none selected
   useEffect(() => {
     if (children.length > 0 && !selectedChildId) {
       setSelectedChildId(children[0].id);
@@ -93,10 +104,9 @@ export default function StatisticsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-lime-50 to-emerald-50 dark:from-green-950 dark:via-lime-950 dark:to-emerald-950 p-4">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link href="/">
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" data-testid="button-back">
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
@@ -105,7 +115,6 @@ export default function StatisticsPage() {
           </h1>
         </div>
 
-        {/* Child Selection */}
         {children.length > 1 && (
           <Card className="mb-6">
             <CardHeader>
@@ -119,6 +128,7 @@ export default function StatisticsPage() {
                     variant={selectedChildId === child.id ? "default" : "outline"}
                     onClick={() => setSelectedChildId(child.id)}
                     className="transition-all duration-200"
+                    data-testid={`button-child-${child.id}`}
                   >
                     {child.name}
                   </Button>
@@ -137,7 +147,7 @@ export default function StatisticsPage() {
                 İstatistikleri görüntülemek için önce bir çocuk profili oluşturun.
               </p>
               <Link href="/">
-                <Button>Ana Sayfaya Dön</Button>
+                <Button data-testid="button-home">Ana Sayfaya Dön</Button>
               </Link>
             </CardContent>
           </Card>
@@ -150,129 +160,249 @@ export default function StatisticsPage() {
                 ))}
               </div>
             ) : currentStats ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Weekly Usage */}
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Clock className="h-5 w-5 text-blue-600" />
-                      Haftalık Kullanım
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-blue-600 mb-1">
-                      {Math.round(currentStats.total_time_week)} dakika
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      {currentStats.weekly_sessions} oturum
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Activities Completed */}
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Activity className="h-5 w-5 text-green-600" />
-                      Tamamlanan Aktiviteler
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-green-600 mb-1">
-                      {currentStats.activities_completed_week}
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      Bu hafta
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Average Rating */}
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Star className="h-5 w-5 text-yellow-600" />
-                      Ortalama Değerlendirme
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-yellow-600 mb-1">
-                      {currentStats.average_rating.toFixed(1)} ⭐
-                    </div>
-                    <Progress 
-                      value={currentStats.average_rating * 20} 
-                      className="w-full"
-                    />
-                  </CardContent>
-                </Card>
-
-                {/* Favorite Activity */}
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Award className="h-5 w-5 text-purple-600" />
-                      En Sevilen Aktivite
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Badge variant="secondary" className="text-sm">
-                      {currentStats.favorite_activity_type || "Henüz veri yok"}
-                    </Badge>
-                  </CardContent>
-                </Card>
-
-                {/* Engagement Trend */}
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-orange-600" />
-                      Katılım Trendi
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Badge 
-                      variant={
-                        currentStats.engagement_trend === "increasing" ? "default" :
-                        currentStats.engagement_trend === "decreasing" ? "destructive" :
-                        "secondary"
-                      }
-                      className="text-sm"
-                    >
-                      {currentStats.engagement_trend === "increasing" ? "📈 Artıyor" :
-                       currentStats.engagement_trend === "decreasing" ? "📉 Azalıyor" :
-                       "📊 Kararlı"}
-                    </Badge>
-                  </CardContent>
-                </Card>
-
-                {/* Weekly Overview */}
-                <Card className="hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <Calendar className="h-5 w-5 text-indigo-600" />
-                      Haftalık Özet
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Günlük ortalama:</span>
-                        <span className="text-sm font-semibold">
-                          {Math.round(currentStats.total_time_week / 7)} dk
-                        </span>
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <Card className="hover:shadow-lg transition-shadow">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <Clock className="h-5 w-5 text-blue-600" />
+                        Haftalık Kullanım
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-blue-600 mb-1" data-testid="stat-weekly-time">
+                        {Math.round(currentStats.total_time_week)} dakika
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Aktivite başına:</span>
-                        <span className="text-sm font-semibold">
-                          {currentStats.activities_completed_week > 0 
-                            ? Math.round(currentStats.total_time_week / currentStats.activities_completed_week) 
-                            : 0} dk
-                        </span>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        {currentStats.weekly_sessions} oturum
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="hover:shadow-lg transition-shadow">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <Activity className="h-5 w-5 text-green-600" />
+                        Tamamlanan Aktiviteler
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-green-600 mb-1" data-testid="stat-activities">
+                        {currentStats.activities_completed_week}
+                      </div>
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
+                        Bu hafta
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="hover:shadow-lg transition-shadow">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <Star className="h-5 w-5 text-yellow-600" />
+                        Ortalama Değerlendirme
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold text-yellow-600 mb-1" data-testid="stat-rating">
+                        {currentStats.average_rating.toFixed(1)} ⭐
+                      </div>
+                      <Progress 
+                        value={currentStats.average_rating * 20} 
+                        className="w-full"
+                      />
+                    </CardContent>
+                  </Card>
+
+                  <Card className="hover:shadow-lg transition-shadow">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <Award className="h-5 w-5 text-purple-600" />
+                        En Sevilen Aktivite
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Badge variant="secondary" className="text-sm" data-testid="stat-favorite">
+                        {currentStats.favorite_activity_type || "Henüz veri yok"}
+                      </Badge>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="hover:shadow-lg transition-shadow">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5 text-orange-600" />
+                        Katılım Trendi
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Badge 
+                        variant={
+                          currentStats.engagement_trend === "increasing" ? "default" :
+                          currentStats.engagement_trend === "decreasing" ? "destructive" :
+                          "secondary"
+                        }
+                        className="text-sm"
+                        data-testid="stat-trend"
+                      >
+                        {currentStats.engagement_trend === "increasing" ? "📈 Artıyor" :
+                         currentStats.engagement_trend === "decreasing" ? "📉 Azalıyor" :
+                         "📊 Kararlı"}
+                      </Badge>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="hover:shadow-lg transition-shadow">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <Calendar className="h-5 w-5 text-indigo-600" />
+                        Haftalık Özet
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Günlük ortalama:</span>
+                          <span className="text-sm font-semibold">
+                            {Math.round(currentStats.total_time_week / 7)} dk
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-600 dark:text-gray-400">Aktivite başına:</span>
+                          <span className="text-sm font-semibold">
+                            {currentStats.activities_completed_week > 0 
+                              ? Math.round(currentStats.total_time_week / currentStats.activities_completed_week) 
+                              : 0} dk
+                          </span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {currentStats.total_stories !== undefined && (
+                    <Card className="hover:shadow-lg transition-shadow">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <Target className="h-5 w-5 text-red-600" />
+                          Toplam Hikayeler
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold text-red-600 mb-1" data-testid="stat-total-stories">
+                          {currentStats.total_stories}
+                        </div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          Oluşturulan hikaye
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {currentStats.weekly_streak !== undefined && (
+                    <Card className="hover:shadow-lg transition-shadow">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <TrendingUp className="h-5 w-5 text-emerald-600" />
+                          Haftalık Seri
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold text-emerald-600 mb-1" data-testid="stat-streak">
+                          {currentStats.weekly_streak} 🔥
+                        </div>
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                          Ardışık gün
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {currentStats.achievement_score !== undefined && (
+                    <Card className="hover:shadow-lg transition-shadow">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <Award className="h-5 w-5 text-amber-600" />
+                          Başarı Puanı
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold text-amber-600 mb-1" data-testid="stat-achievement">
+                          {currentStats.achievement_score}/100
+                        </div>
+                        <Progress 
+                          value={currentStats.achievement_score} 
+                          className="w-full mt-2"
+                        />
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+
+                {currentStats.learned_values && currentStats.learned_values.length > 0 && (
+                  <Card className="mt-6 hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Star className="h-6 w-6 text-yellow-600" />
+                        Öğrenilen Değerler
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-wrap gap-2">
+                        {currentStats.learned_values.map((value, index) => (
+                          <Badge 
+                            key={index} 
+                            variant="secondary"
+                            className="text-sm px-3 py-1 bg-gradient-to-r from-green-100 to-lime-100 text-green-800 dark:from-green-900 dark:to-lime-900 dark:text-green-200"
+                            data-testid={`value-${index}`}
+                          >
+                            {value}
+                          </Badge>
+                        ))}
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
+                        Bu değerler, {currentStats.childName} için oluşturulan hikayelerde vurgulanmıştır.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+
+                <Card className="mt-6 bg-gradient-to-r from-green-50 to-lime-50 dark:from-green-950 dark:to-lime-950 hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <BarChart3 className="h-6 w-6 text-green-600" />
+                      Genel Özet
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        <strong>{currentStats.childName}</strong> bu hafta <strong>{currentStats.weekly_sessions} oturumda</strong> toplam <strong>{currentStats.total_time_week} dakika</strong> aktivite tamamladı.
+                      </p>
+                      {currentStats.total_stories && currentStats.total_stories > 0 && (
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          Şu ana kadar <strong>{currentStats.total_stories} hikaye</strong> oluşturuldu ve dinlendi.
+                        </p>
+                      )}
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        Katılım trendi: <Badge variant={
+                          currentStats.engagement_trend === "increasing" ? "default" :
+                          currentStats.engagement_trend === "decreasing" ? "destructive" :
+                          "secondary"
+                        } className="ml-1">
+                          {currentStats.engagement_trend === "increasing" ? "📈 Yükseliyor" :
+                           currentStats.engagement_trend === "decreasing" ? "📉 Düşüyor" :
+                           "📊 Stabil"}
+                        </Badge>
+                      </p>
+                      <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                          💡 Düzenli aktiviteler, çocuğunuzun gelişimini destekler. Her gün en az 10 dakika etkileşim hedefleyin!
+                        </p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
-              </div>
+              </>
             ) : (
               <Card>
                 <CardContent className="p-12 text-center">
@@ -283,7 +413,7 @@ export default function StatisticsPage() {
                     Birkaç aktivite tamamladıktan sonra istatistikler burada görünecek.
                   </p>
                   <Link href="/">
-                    <Button>Aktivitelere Başla</Button>
+                    <Button data-testid="button-start-activities">Aktivitelere Başla</Button>
                   </Link>
                 </CardContent>
               </Card>
