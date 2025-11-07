@@ -136,7 +136,7 @@ export const openaiCircuitBreaker = new CircuitBreaker(5, 60000, 'OpenAI API');
  * AI call configuration defaults
  */
 export const AI_TIMEOUT_MS = 7000; // 7 seconds (under p95 target)
-export const MULTI_AGENT_TIMEOUT_MS = 20000; // 20 seconds for complex multi-agent orchestration
+export const MULTI_AGENT_TIMEOUT_MS = 240000; // 4 minutes (240 seconds) for complex multi-agent orchestration
 export const MAX_PROMPT_LENGTH = 500;
 
 /**
